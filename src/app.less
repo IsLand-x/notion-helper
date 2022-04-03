@@ -1,0 +1,202 @@
+.background{
+  background-color: rgb(237,237,237);
+}
+
+.shadow {
+  box-shadow: 0 4px 10px 0 rgb(0 0 0 / 5%);
+}
+
+*{
+  box-sizing: border-box;
+}
+
+.h-screen{
+  height: 100vh;
+}
+
+page{
+  background-color: rgb(230,230,230);
+  min-height: 100vh;
+  
+  color: #666;
+}
+
+.text-xs{
+  font-size: 20rpx;
+}
+
+.text-sm{
+  font-size: 24rpx;
+}
+
+.text-md{
+  font-size: 28rpx;
+}
+
+.text-lg{
+  font-size: 32rpx;
+}
+
+.text-xl{
+  font-size: 36rpx;
+}
+
+.text-2xl{
+  font-size: 40rpx;
+}
+
+.font-bold{
+  font-weight: bold;
+}
+
+.font-bolder{
+  font-weight: bolder;
+}
+
+.track-wide{
+  letter-spacing: .05em;
+}
+
+.track-widest{
+  letter-spacing: .1rem;
+}
+
+.text-info{
+  color:#969696;
+}
+
+.text-primary{
+  color: #666;
+}
+
+.text-link{
+  color:#5079d9;
+}
+
+.text-blue{
+  color:#3965cc;
+}
+
+.text-green{
+  color:#8aad37;
+}
+
+.text-red{
+  color:#d44d44;
+}
+
+.border-blue{
+  border: 1px solid #93b2f7;
+}
+
+.border-green{
+  border: 1px solid rgba(138,173,55,.6);
+}
+
+.bg-blue{
+  background-color: #e5efff;
+}
+
+.bg-green{
+  background-color: #f7fae1;
+}
+
+.bg-gray{
+  background-color: #ededed;
+}
+
+.bg-white{
+  background-color: #fff;
+}
+
+.rounded{
+  border-radius: 16rpx;
+}
+
+.border{
+  border:2rpx solid #efefef;
+}
+
+.border-right{
+  border-right: 2rpx solid #efefef;
+}
+
+.border-bottom{
+  border-bottom: 2rpx solid #efefef;
+}
+
+.border-left{
+  border-left: 2rpx solid #efefef;
+}
+
+.border-top{
+  border-top: 2rpx solid #efefef;
+}
+
+.gen-mp(@classBase,@cssProperty,@count,@i:1) when (@i<=@count){
+  .@{classBase}-@{i}{
+    @{cssProperty}:@i *16rpx
+  }
+  .gen-mp(@classBase,@cssProperty,@count,@i+1)
+}
+
+.gen-mp-bi(@classBase,@extend1,@extend2,@count,@i:1) when (@i<=@count){
+  .@{classBase}-@{i}{
+    @{extend1}:@i * 16rpx;
+    @{extend2}:@i * 16rpx;
+  }
+  .gen-mp-bi(@classBase,@extend1,@extend2,@count,@i+1)
+}
+
+.gen-mp(mt,margin-top,10);
+.gen-mp(ml,margin-left,10);
+.gen-mp(mr,margin-right,10);
+.gen-mp(mb,margin-bottom,10);
+.gen-mp(m,margin,10);
+.gen-mp-bi(mx,margin-left,margin-right,10);
+.gen-mp-bi(my,margin-top,margin-bottom,10);
+
+.gen-mp(pt,padding-top,10);
+.gen-mp(pl,padding-left,10);
+.gen-mp(pr,padding-right,10);
+.gen-mp(pb,padding-bottom,10);
+.gen-mp(p,padding,10);
+.gen-mp-bi(px,padding-right,padding-left,10);
+.gen-mp-bi(py,padding-top,padding-bottom,10);
+
+.flex{
+  display: flex;
+}
+
+.items-center{
+  align-items: center;
+}
+
+.flex-col{
+  flex-direction: column;
+}
+
+.relative{
+  position:relative
+}
+
+.overflow-hidden{
+  overflow: hidden;
+}
+
+.from{
+  transform: scale(0.8);
+  opacity: 0;
+}
+
+.active{
+  transition: all .3s;
+}
+
+.text-center{
+  text-align: center;
+}
+
+.mt-auto{
+  margin-top: auto;
+}

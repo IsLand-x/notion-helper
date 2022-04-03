@@ -1,0 +1,50 @@
+{
+  "name": "notion-helper",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Notion Helper",
+  "templateInfo": {
+    "name": "vue3-pinia",
+    "typescript": true,
+    "css": "less"
+  },
+  "scripts": {
+    "build": "taro build --type weapp",
+    "dev": "npm run build -- --watch"
+  },
+  "browserslist": [
+    "last 3 versions",
+    "Android >= 4.1",
+    "ios >= 8"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@babel/runtime": "^7.7.7",
+    "@tarojs/components": "3.4.4",
+    "@tarojs/plugin-framework-vue3": "3.4.4",
+    "@tarojs/runtime": "3.4.4",
+    "@tarojs/taro": "3.4.4",
+    "@vueuse/core": "^8.2.3",
+    "pinia": "^2.0.6",
+    "taro-plugin-pinia": "^1.0.0",
+    "vue": "^3.2.24"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.8.0",
+    "@tarojs/mini-runner": "3.4.4",
+    "@tarojs/plugin-html": "^3.4.4",
+    "@tarojs/webpack-runner": "3.4.4",
+    "@types/webpack-env": "^1.13.6",
+    "@typescript-eslint/eslint-plugin": "^4.15.1",
+    "@typescript-eslint/parser": "^4.15.1",
+    "autoprefixer": "^10.4.4",
+    "babel-preset-taro": "3.4.4",
+    "eslint": "^6.8.0",
+    "eslint-config-taro": "3.4.4",
+    "eslint-plugin-vue": "^7.0.0",
+    "stylelint": "9.3.0",
+    "typescript": "^4.1.0",
+    "vue-loader": "^16.8.3"
+  }
+}

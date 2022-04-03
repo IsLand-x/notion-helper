@@ -1,0 +1,70 @@
+{
+    "setting": {},
+    "condition": {
+        "plugin": {
+            "list": []
+        },
+        "game": {
+            "list": []
+        },
+        "gamePlugin": {
+            "list": []
+        },
+        "miniprogram": {
+            "list": [
+                {
+                    "name": "",
+                    "pathName": "pages/saveArticle/index",
+                    "query": "",
+                    "scene": 1173,
+                    "launchMode": "default",
+                    "referrerInfo": {
+                        "materials": [
+                            {
+                                "type": "text/html",
+                                "path": "https://mp.weixin.qq.com/s/L2XPThB9lo2R2vpWLhDGFA",
+                                "name": "",
+                                "size": 0
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "",
+                    "pathName": "pages/book/index",
+                    "query": "",
+                    "launchMode": "default",
+                    "scene": null
+                },
+                {
+                    "name": "",
+                    "pathName": "pages/user/index",
+                    "query": "",
+                    "launchMode": "default",
+                    "scene": null
+                },
+                {
+                    "name": "",
+                    "pathName": "pages/feedback/index",
+                    "query": "",
+                    "launchMode": "default",
+                    "scene": null
+                },
+                {
+                    "name": "",
+                    "pathName": "pages/saveArticle/index",
+                    "query": "",
+                    "launchMode": "default",
+                    "scene": null
+                },
+                {
+                    "name": "",
+                    "pathName": "pages/book/index",
+                    "query": "",
+                    "launchMode": "default",
+                    "scene": null
+                }
+            ]
+        }
+    }
+}
