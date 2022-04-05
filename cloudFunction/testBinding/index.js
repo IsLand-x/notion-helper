@@ -22,7 +22,10 @@ exports.main = async (event, context) => {
       },
       Date:{
         date:{}
-      }
+      },
+      'Add Date': {
+        date: {}
+      },
     }
   }).catch(e=>e)
   const errMsg = {

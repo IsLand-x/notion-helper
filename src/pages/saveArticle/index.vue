@@ -68,7 +68,7 @@ const runner = effect(async () => {
   }
   articleInfo.value = articleResult.data
   const { result: saveResult } = await cloud.callFunction({
-    name: "saveArticle",
+    name: "storeArticle",
     data: {
       url: url.value
     }

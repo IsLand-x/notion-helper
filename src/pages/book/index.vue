@@ -97,14 +97,17 @@ const capsuleStore = useCapsule()
             />
           </div>
           <Heading1>完成</Heading1>
-          <Paragraph>可以看到，文章被收藏到Notion中了 🖖🖖🖖</Paragraph>
+          <Paragraph>可以看到，文章链接和内容都被收藏到Notion中了 🖖🖖🖖</Paragraph>
           <img
             mode="aspectFit"
-            src="cloud://cloud1-0gdb05jw5581957d.636c-cloud1-0gdb05jw5581957d-1310720469/Untitled.png"
+            src="cloud://cloud1-0gdb05jw5581957d.636c-cloud1-0gdb05jw5581957d-1310720469/QQ截图20220404223922.png"
+            style="height:200rpx"
           />
-
+          <img
+            mode="aspectFit"
+            src="cloud://cloud1-0gdb05jw5581957d.636c-cloud1-0gdb05jw5581957d-1310720469/QQ截图20220404223859.png"
+          />
           <Heading1>后记</Heading1>
-          <Paragraph>文章的保存形式，当前是保存的链接。因为当时我想的是总会有个二次加工材料的过程，把链接收集到Notion之后，有针对性的摘录即可。（实际上是技术问题，爬取的html的标签内的内容转成markdown之后，换行总是自动消失，然后有的推送还会有视频之类的，感觉不太好做，太菜了...）</Paragraph>
           <Paragraph>后面会想一些更多有意思的使用方法~</Paragraph>
         </article>
       </Card>

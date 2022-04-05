@@ -27,6 +27,7 @@
     "@tarojs/taro": "3.4.4",
     "@vueuse/core": "^8.2.3",
     "pinia": "^2.0.6",
+    "puppeteer": "^13.5.2",
     "taro-plugin-pinia": "^1.0.0",
     "vue": "^3.2.24"
   },
