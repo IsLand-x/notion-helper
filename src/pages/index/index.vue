@@ -6,10 +6,14 @@ import MenuItem from '../../components/MenuItem/index.vue';
 import book from '../../assets/book.png';
 import feedback from '../../assets/feedback.png';
 import user from '../../assets/user.png';
+import roadmap from '../../assets/roadmap.png';
+
 import { navigateTo } from '@tarojs/taro';
 import styles from './index.module.less';
 import logo from '../../assets/notion_logo.png';
-import { useShareTimeline } from '@tarojs/taro';
+import { useShareTimeline, getStorageSync, setStorageSync } from '@tarojs/taro';
+import { ref } from 'vue';
+
 useShareTimeline(() => {
   return {
     title: 'Notion助手-帮你收藏公众号文章到Notion',
@@ -17,6 +21,19 @@ useShareTimeline(() => {
     imageUrl: 'https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/basicprofile.png?sign=fe61a2c6304e5e48acc4766e15144f46&t=1648961942'
   }
 })
+
+const currentVersion = "0.0.2"
+const showDot = ref(false);
+const version = getStorageSync("version")
+if (!version || version !== currentVersion) {
+  showDot.value = true
+}
+
+const handleClickDot = () => {
+  setStorageSync("version", currentVersion);
+  showDot.value = false;
+}
+
 </script>
 <script lang="ts">
 export default {
@@ -46,9 +63,16 @@ export default {
       <MenuItem :icon="book" name="使用教程" @click="navigateTo({ url: '/pages/book/index' })" />
       <MenuItem :icon="user" name="信息绑定" @click="navigateTo({ url: '/pages/user/index' })" />
       <MenuItem :icon="feedback" name="问题反馈" @click="navigateTo({ url: '/pages/feedback/index' })" />
+      <MenuItem
+        :icon="roadmap"
+        name="更新日志"
+        @click="handleClickDot(), navigateTo({ url: '/pages/roadmap/index' })"
+        :dot="showDot"
+      />
     </Menu>
+
     <div
       class="text-xs text-gray text-center mt-auto pb-4"
-    >Copyright 2022 @Island All Rights Reserved.</div>
+    >Version 0.0.2 | Copyright 2022 @Island All Rights Reserved.</div>
   </div>
 </template>

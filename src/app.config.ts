@@ -4,7 +4,8 @@ export default {
     'pages/saveArticle/index',
     'pages/book/index',
     'pages/user/index',
-    'pages/feedback/index'
+    'pages/feedback/index',
+    'pages/roadmap/index'
   ],
   window: {
     backgroundTextStyle: 'light',
