@@ -357,6 +357,12 @@ exports.main = async (event, context) => {
     parent: {
       database_id: db
     },
+    icon: {
+      type: "external",
+      external: {
+        url:"https://res.wx.qq.com/a/wx_fed/assets/res/NTI4MWU5.ico"
+      }
+    },
     cover: {
       type: 'external',
       external: {
