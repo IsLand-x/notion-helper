@@ -11,7 +11,10 @@ import RoadMapItem from './components/RoadMapItem/index.vue';
     <Header :canGoBack="true">更新日志</Header>
     <Card>
       <div :class="styles.wrapper">
-        <RoadMapItem date="2022-04-05" version="0.0.2">
+        <RoadMapItem date="2022-04-05" version="0.0.3">
+          <div>新增对IOS用户保存文章的功能支持。</div>
+        </RoadMapItem>
+        <RoadMapItem date="2022-04-04" version="0.0.2">
           <div>新增更新日志模块。</div>
           <div>新增爬取文章内容到Notion的功能。（IOS暂不支持）</div>
         </RoadMapItem>

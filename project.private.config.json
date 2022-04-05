@@ -16,13 +16,13 @@
                     "name": "",
                     "pathName": "pages/saveArticle/index",
                     "query": "",
-                    "launchMode": "default",
                     "scene": 1173,
+                    "launchMode": "default",
                     "referrerInfo": {
                         "materials": [
                             {
                                 "type": "text/html",
-                                "path": "https://mp.weixin.qq.com/s/XbG3OZ4EqkLPURbCu786-Q",
+                                "path": "https://mp.weixin.qq.com/s/WeP1fDsFQvYXhkY6PtRy6w",
                                 "name": "",
                                 "size": 0
                             }
@@ -68,8 +68,8 @@
                     "name": "",
                     "pathName": "pages/roadmap/index",
                     "query": "",
-                    "scene": null,
-                    "launchMode": "default"
+                    "launchMode": "default",
+                    "scene": null
                 }
             ]
         }

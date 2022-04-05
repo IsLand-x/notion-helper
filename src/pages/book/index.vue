@@ -79,7 +79,8 @@ const capsuleStore = useCapsule()
             </div>
           </div>
           <Heading1>Step4 将公众号的文章保存到Notion</Heading1>
-          <Paragraph>在想收藏的推送中，点击右上角三个点，选择更多打开方式，点击Notion助手即可。</Paragraph>
+          <Paragraph>可以直接通过首页的”文章保存“功能保存文章。</Paragraph>
+          <Paragraph>如果你是Android用户，可以通过在公众号文章页面，点击右上角三个点，选择更多打开方式，选择Notion助手快捷保存。</Paragraph>
           <div id="ae9bb65a-331d-4a42-9659-0fd540e1dbff" class="flex">
             <img
               mode="aspectFit"

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { useDidShow, useDidHide, getEnterOptionsSync, cloud, navigateTo, redirectTo } from '@tarojs/taro';
-import { ref, effect } from 'vue';
+import { useDidShow, showToast, getEnterOptionsSync, cloud, navigateTo, getCurrentPages } from '@tarojs/taro';
+import { ref } from 'vue';
 import Header from '../../components/Header/index.vue'
 import Card from '../../components/Card/index.vue';
 import styles from './index.module.less'
@@ -8,6 +8,9 @@ import { TransitionPresets, useTransition } from '@vueuse/core'
 import logo from '../../assets/notion_logo.png';
 import SButton from '../../components/SButton/index.vue';
 import FadeTransition from '../../components/FadeTransition.vue';
+import { useGlobal } from '../../stores/global'
+import SInput from '../../components/Input/index.vue';
+import SButton1 from '../../components/SButton/index.vue';
 
 interface IArticleInfo {
   articleName: string;
@@ -26,24 +29,25 @@ const percentShow = useTransition(percent, {
 
 const isError = ref(false);
 const errMsg = ref('');
+const tempUrl = ref('');
 
 type GetArticleInfoResp = CloudFnRes<IArticleInfo>
 
-let isFirst = ref(true)
+const globalStore = useGlobal()
+
 useDidShow(() => {
-  const { forwardMaterials = [] } = getEnterOptionsSync();
-  url.value = forwardMaterials[0]?.path;
-  if (!url.value) {
-    redirectTo({ url: '/pages/index/index' })
+  if (!['android', 'devtools'].includes(globalStore.platform)) {
     return;
   }
-  if (!isFirst.value) {
-    runner();
+  const { forwardMaterials = [] } = getEnterOptionsSync();
+  url.value = forwardMaterials[0]?.path || '';
+  console.log(url.value)
+  if (url.value) {
+    saveArticle()
   }
-  isFirst.value = false
 })
 
-const runner = effect(async () => {
+const saveArticle = async () => {
   isError.value = false;
   errMsg.value = '';
   percent.value = 0;
@@ -82,13 +86,21 @@ const runner = effect(async () => {
     return;
   }
   percent.value = 100
-})
+}
 
+const handleSave = () => {
+  if (tempUrl.value === '') {
+    showToast({ title: '请粘贴URL', icon: 'none' })
+    return
+  }
+  url.value = tempUrl.value;
+  saveArticle()
+}
 </script>
 
 <template>
   <div>
-    <Header>Notion助手</Header>
+    <Header :can-go-back="getCurrentPages().length > 1">Notion助手</Header>
     <Card>
       <div :class="styles.wrapper">
         <img :src="logo" :class="styles.img" />
@@ -98,9 +110,21 @@ const runner = effect(async () => {
           :strokeWidth="6"
           active
           :activeColor="isError ? '#d44d44' : percentShow === 100 ? '#8aad37' : '#3965cc'"
-        ></progress>
+          v-if="percentShow !== 0"
+        />
       </div>
     </Card>
+    <FadeTransition>
+      <div style="animationDuration: 0.5s" v-if="url === ''">
+        <Card>
+          <SInput :model-value="tempUrl" @update:model-value="e => tempUrl = e" label="公众号链接" />
+        </Card>
+        <Card>
+          <div class="p-2">安卓用户也可以直接通过”公众号推送->右上角三个点->更多打开方式“中打开Notion助手，更方便地将文章保存到Notion。</div>
+        </Card>
+        <SButton1 @click="handleSave" class="mx-2">保 存</SButton1>
+      </div>
+    </FadeTransition>
     <FadeTransition>
       <Card v-if="articleInfo" style="animationDuration: 0.5s">
         <div :class="styles.articleInfo">
@@ -129,7 +153,7 @@ const runner = effect(async () => {
     </FadeTransition>
     <FadeTransition>
       <SButton
-        @click="runner"
+        @click="saveArticle"
         class="m-2"
         style="animationDuration: 0.5s"
         v-if="errMsg.includes('请求超时')"

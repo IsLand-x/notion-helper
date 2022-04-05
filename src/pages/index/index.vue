@@ -7,12 +7,14 @@ import book from '../../assets/book.png';
 import feedback from '../../assets/feedback.png';
 import user from '../../assets/user.png';
 import roadmap from '../../assets/roadmap.png';
+import copy from '../../assets/copy.png';
 
 import { navigateTo } from '@tarojs/taro';
 import styles from './index.module.less';
 import logo from '../../assets/notion_logo.png';
 import { useShareTimeline, getStorageSync, setStorageSync } from '@tarojs/taro';
 import { ref } from 'vue';
+import { useGlobal } from '../../stores/global';
 
 useShareTimeline(() => {
   return {
@@ -22,15 +24,15 @@ useShareTimeline(() => {
   }
 })
 
-const currentVersion = "0.0.2"
+const globalStore = useGlobal()
 const showDot = ref(false);
 const version = getStorageSync("version")
-if (!version || version !== currentVersion) {
+if (!version || version !== globalStore.version) {
   showDot.value = true
 }
 
 const handleClickDot = () => {
-  setStorageSync("version", currentVersion);
+  setStorageSync("version", globalStore.version);
   showDot.value = false;
 }
 
@@ -61,6 +63,7 @@ export default {
     </Card>
     <Menu>
       <MenuItem :icon="book" name="使用教程" @click="navigateTo({ url: '/pages/book/index' })" />
+      <MenuItem :icon="copy" name="文章保存" @click="navigateTo({ url: '/pages/saveArticle/index' })" />
       <MenuItem :icon="user" name="信息绑定" @click="navigateTo({ url: '/pages/user/index' })" />
       <MenuItem :icon="feedback" name="问题反馈" @click="navigateTo({ url: '/pages/feedback/index' })" />
       <MenuItem
@@ -73,6 +76,6 @@ export default {
 
     <div
       class="text-xs text-gray text-center mt-auto pb-4"
-    >Version 0.0.2 | Copyright 2022 @Island All Rights Reserved.</div>
+    >Version {{ globalStore.version }} | Copyright 2022 @Island All Rights Reserved.</div>
   </div>
 </template>
