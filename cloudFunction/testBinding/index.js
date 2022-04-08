@@ -34,7 +34,7 @@ exports.main = async (event, context) => {
   console.log(response);
   const errMsg = {
       unauthorized:'Token错误,请检查',
-      validation_error:'表头错误。可尝试新建数据库(不要更改表头)解决该问题。',
+      validation_error:'表头错误。若Token和Id正确，可尝试新建数据库(不要更改表头)解决该问题。',
       object_not_found:'ID错误或未引入integration,请检查',
   }
   if(errMsg[response.code]){
