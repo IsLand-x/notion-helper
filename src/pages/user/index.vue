@@ -51,7 +51,7 @@ const handleSave = async () => {
     showToast({ icon: 'success', title: '绑定成功' })
   } else {
     hideLoading()
-    showToast({ icon: 'error', title: result.errMsg })
+    showToast({ icon: 'none', title: result.errMsg })
   }
 }
 </script>

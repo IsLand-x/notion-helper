@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useDidShow, showToast, getEnterOptionsSync, cloud, navigateTo, getCurrentPages } from '@tarojs/taro';
+import { useDidShow, showToast, getEnterOptionsSync, cloud, navigateTo, getCurrentPages,useDidHide,redirectTo } from '@tarojs/taro';
 import { ref } from 'vue';
 import Header from '../../components/Header/index.vue'
 import Card from '../../components/Card/index.vue';
@@ -100,7 +100,7 @@ const handleSave = () => {
 
 <template>
   <div>
-    <Header :can-go-back="getCurrentPages().length > 1">Notion助手</Header>
+    <Header can-go-back>Notion助手</Header>
     <Card>
       <div :class="styles.wrapper">
         <img :src="logo" :class="styles.img" />

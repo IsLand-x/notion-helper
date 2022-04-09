@@ -8,7 +8,7 @@ import feedback from '../../assets/feedback.png';
 import user from '../../assets/user.png';
 import roadmap from '../../assets/roadmap.png';
 import copy from '../../assets/copy.png';
-
+import question from '../../assets/question.png';
 import { navigateTo } from '@tarojs/taro';
 import styles from './index.module.less';
 import logo from '../../assets/notion_logo.png';
@@ -65,6 +65,7 @@ export default {
       <MenuItem :icon="book" name="使用教程" @click="navigateTo({ url: '/pages/book/index' })" />
       <MenuItem :icon="copy" name="文章保存" @click="navigateTo({ url: '/pages/saveArticle/index' })" />
       <MenuItem :icon="user" name="信息绑定" @click="navigateTo({ url: '/pages/user/index' })" />
+      <MenuItem :icon="question" name="常见问题" @click="navigateTo({ url: '/pages/questions/index' })" />
       <MenuItem :icon="feedback" name="问题反馈" @click="navigateTo({ url: '/pages/feedback/index' })" />
       <MenuItem
         :icon="roadmap"

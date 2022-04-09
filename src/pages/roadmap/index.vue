@@ -11,6 +11,9 @@ import RoadMapItem from './components/RoadMapItem/index.vue';
     <Header :canGoBack="true">更新日志</Header>
     <Card>
       <div :class="styles.wrapper">
+        <RoadMapItem date="2022-04-09" version="0.0.4">
+          <div>新增常见问题模块。</div>
+        </RoadMapItem>
         <RoadMapItem date="2022-04-05" version="0.0.3">
           <div>新增对IOS用户保存文章的功能支持。</div>
         </RoadMapItem>

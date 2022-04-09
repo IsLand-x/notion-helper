@@ -6,6 +6,6 @@ export const useGlobal = defineStore('global', () => {
   const platform = ref(getSystemInfoSync().platform)
   return {
     platform,
-    version:'0.0.3'
+    version: '0.0.4'
   }
 })

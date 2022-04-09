@@ -226,7 +226,13 @@ exports.main = async (event, context) => {
         divider: {}
       }]
     }
-    const formatImgUrl = url => (url || "").replace(/\?wx_fmt=.+/, '.png')
+    const formatImgUrl = url => {
+      if(/\?wx_fmt=.+/.test(url||"")){
+        return (url || "").replace(/\?wx_fmt=.+/, '.png')
+      }else{
+        return url+'.png'
+      }
+    }
     const treatAsFigure = element => {
       const hasOnlyImgNode = element => Array.from(element.childNodes).length === 1 && element.childNodes[0].tagName.toLowerCase() === 'img'
       if (hasOnlyImgNode(element)) {
@@ -353,6 +359,8 @@ exports.main = async (event, context) => {
   });
 
   browser.close();
+  console.log(content)
+  console.log(articleName, author);
   let response = await notion.pages.create({
     parent: {
       database_id: db
@@ -445,7 +453,7 @@ exports.main = async (event, context) => {
     }).catch(e => e)
     if (response.code === 'validation_error') {
       return {
-        errMsg: '收藏失败，可能的原因有：\n① 请不要删除或更名初始的数据库列。可在用户绑定页面重新绑定以修复 \n② 文章含有无法解析的块，可以向开发者反馈'
+        errMsg: '收藏失败，可能的原因有：\n① 请不要删除或更名初始的数据库列。可在用户绑定页面重新绑定以修复 \n② 文章含有无法解析的块，可以向开发者反馈\n ③无效的Token或DatabaseID'
       }
     } else {
       return {

@@ -8,6 +8,21 @@ const {
 
 // 云函数入口函数
 exports.main = async (event, context) => {
+  if (!event.db || !event.key) {
+    return {
+      errMsg: "请检查信息完整性"
+    }
+  }
+  if (event.db.length !== 32) {
+    return {
+      errMsg:"Database ID长度应当为32位，请检查"
+    }
+  }
+  if (event.key.length !== 50) {
+    return {
+      errMsg:"Token长度应当为50位，请检查"
+    }
+  }
   const notion = new Client({
     auth: event.key
   });
