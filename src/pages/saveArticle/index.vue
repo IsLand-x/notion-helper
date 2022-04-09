@@ -39,6 +39,9 @@ useDidShow(() => {
   if (!['android', 'devtools'].includes(globalStore.platform)) {
     return;
   }
+  if(getCurrentPages().length>1){
+    return;
+  }
   const { forwardMaterials = [] } = getEnterOptionsSync();
   url.value = forwardMaterials[0]?.path || '';
   console.log(url.value)
