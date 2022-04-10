@@ -13,6 +13,7 @@ exports.main = async (event, context) => {
       errMsg: "请检查信息完整性"
     }
   }
+  console.log(event.db,event.key)
   if (event.db.length !== 32) {
     return {
       errMsg:"Database ID长度应当为32位，请检查"

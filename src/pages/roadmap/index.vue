@@ -11,6 +11,12 @@ import RoadMapItem from './components/RoadMapItem/index.vue';
     <Header :canGoBack="true">更新日志</Header>
     <Card>
       <div :class="styles.wrapper">
+        <RoadMapItem date="2022-04-10" version="0.0.5">
+          <div>新增批量收藏模块。</div>
+          <div>优化使用教程。</div>
+          <div>优化绑定体验。</div>
+          <div>优化反馈体验。</div>
+        </RoadMapItem>
         <RoadMapItem date="2022-04-09" version="0.0.4">
           <div>新增常见问题模块。</div>
         </RoadMapItem>

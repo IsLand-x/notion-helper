@@ -14,7 +14,8 @@ exports.main = async (event, context) => {
         {
             question:"为什么提示表头错误？如何修复？",
             answer:"表头错误说明数据库的列名存在问题。当绑定数据库到Notion助手时，助手会自动帮你生成一些列，请不要删除或者重命名这些自动生成的列。 \
-            可以通过手动创建对应的列修复，Name(类型为title)，Add Date(类型为date)，Date(类型为date)，Author(类型为text)，Href(类型为url)。列的顺序可以自定，但注意在后期使用时不要修改列名字。 \
+            可以通过手动创建对应的列修复，Name(类型为title)，Add Date(类型为date)，Date(类型为date)，Author(类型为text)，Href(类型为url)。列的顺序可以自定，但注意在后期使用时不要修改列名。 \
+            如果您是中文版用户，请确保Database的\"表格视图\"和\"名称\"字样必须是 \"Table\" 和 \"Name\" 。 \
             "
         },
         {
@@ -31,7 +32,7 @@ exports.main = async (event, context) => {
         },
         {
             question:"为什么提示\"无法解析的块或HTML标签\"？",
-            answer:"这类问题不多。Notion助手通过Notion开放的API进行文章保存，通过Puppeteer爬取文章HTML标签。但是将HTML标签转换成Notion所需要的格式是完全手写的，所以也可能会存在一些边界情况。部分文章的图片没有扩展名时Notion无法识别（已通过助手走兜底逻辑修复），这类问题可以向开发者反馈来获得更高优先级的支持。"
+            answer:"这类问题不多。Notion助手通过Notion开放的API进行文章保存，通过Puppeteer爬取文章HTML标签。但是将HTML标签转换成Notion所需要的格式是完全手写的，所以也可能会存在一些边界情况。例如，部分文章的图片没有扩展名时Notion无法识别（已通过助手走兜底逻辑修复），这类问题可以向开发者反馈来获得更高优先级的支持。"
         }
     ]
     return {

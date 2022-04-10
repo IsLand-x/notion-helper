@@ -5,6 +5,7 @@ type IInput = {
   modelValue?: string;
   label: string;
   placeholder?: string;
+  extra?:string;
 }
 type IInputEmits = {
   (e: 'update:modelValue', value: string): void;
@@ -27,6 +28,7 @@ const handleChange = (e) => {
       @change="handleChange"
       :placeholder="placeholder"
     />
+    <div :class="styles.extra">{{extra}}</div>
   </div>
 </template>
 

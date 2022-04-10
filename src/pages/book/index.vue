@@ -53,9 +53,20 @@ const capsuleStore = useCapsule()
             />
             <Paragraph>现在，你的Integration就有了访问这个database的权限。在进行下一步之前，你需要获得这个database 的链接。</Paragraph>
             <Paragraph>
-              可以点击Share按钮，然后选择
+              如果你的database是Full page Database，可以点击页面上方的Share按钮，然后选择
               CopyLink。
             </Paragraph>
+            <img
+              mode="aspectFit"
+              src="cloud://cloud1-0gdb05jw5581957d.636c-cloud1-0gdb05jw5581957d-1310720469/QQ截图20220409231534.png"
+            />
+            <Paragraph>
+              如果你的database是Inline Database，可以通过旁边的抓手选择CopyLink
+            </Paragraph>
+            <img
+              mode="aspectFit"
+              src="cloud://cloud1-0gdb05jw5581957d.636c-cloud1-0gdb05jw5581957d-1310720469/QQ截图20220409230628.png"
+            />
             <Paragraph>DatabaseID是URL中在workspace后的，并且在问号 ? 之前的一部分，这个ID共有32位字符。这里需要记录这个Database ID。</Paragraph>
             <img
               style="height: 100rpx;"
@@ -97,6 +108,7 @@ const capsuleStore = useCapsule()
               src="cloud://cloud1-0gdb05jw5581957d.636c-cloud1-0gdb05jw5581957d-1310720469/Screenshot_2022-04-02-23-41-10-770_com.tencent.mm.jpg"
             />
           </div>
+          <Paragraph>如果你是ios用户，需要注意，因为微信ios端并没有开放“保存聊天素材到小程序”API，所以暂时无法实现上述快捷保存功能。建议暂时将文章链接复制到“备忘录”等第三方应用，通过“批量保存”功能一次性保存所有文章，提升阅读体验和收藏效率。</Paragraph>
           <Heading1>完成</Heading1>
           <Paragraph>可以看到，文章链接和内容都被收藏到Notion中了 🖖🖖🖖</Paragraph>
           <img

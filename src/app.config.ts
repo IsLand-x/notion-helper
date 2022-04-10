@@ -6,7 +6,8 @@ export default {
     'pages/user/index',
     'pages/feedback/index',
     'pages/roadmap/index',
-    'pages/questions/index'
+    'pages/questions/index',
+    'pages/batchSave/index'
   ],
   window: {
     backgroundTextStyle: 'light',

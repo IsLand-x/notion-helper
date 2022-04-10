@@ -10,7 +10,8 @@ const uuid = require('uuid');
 exports.main = async (event, context) => {
   
   const puppeteer = require("puppeteer");
-  const { OPENID } = cloud.getWXContext()
+  const { OPENID } = await cloud.getWXContext()
+  console.log("OPENID: ",OPENID)
   const { data } = await cloud.database()
     .collection('user')
     .where({
@@ -39,6 +40,7 @@ exports.main = async (event, context) => {
   const browser = await puppeteer.launch({
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
   });
+
   const page = await browser.newPage();
   await page.goto(event.url);
   await page.exposeFunction('uuid', () => {
@@ -47,6 +49,21 @@ exports.main = async (event, context) => {
   await page.addScriptTag({
     path: './node_modules/uuid/dist/umd/uuidv4.min.js'
   })
+  const notFound = await page.$$eval(".weui-msg .weui-msg__title.warn", e => {
+    const ele = e[0]
+    if (ele) {
+      return ele.textContent.trim()
+    } else {
+      return null
+    }
+  })
+  console.log("NOT FOUND MSG: ",notFound)
+  if (notFound) {
+    browser.close();
+    return {
+      errMsg:notFound+", 请确认链接是否正确。"
+    }
+  }
   const articleName = await page.$$eval("#activity-name", (e) => e[0].textContent.trim())
   const author = await page.$$eval("#js_name", e => e[0].textContent.trim());
   const time = await page.$$eval("#publish_time", e => e[0].textContent.trim())
@@ -227,11 +244,8 @@ exports.main = async (event, context) => {
       }]
     }
     const formatImgUrl = url => {
-      if(/\?wx_fmt=.+/.test(url||"")){
-        return (url || "").replace(/\?wx_fmt=.+/, '.png')
-      }else{
-        return url+'.png'
-      }
+      const [first] = url.split("?");
+      return first+'.png'
     }
     const treatAsFigure = element => {
       const hasOnlyImgNode = element => Array.from(element.childNodes).length === 1 && element.childNodes[0].tagName.toLowerCase() === 'img'
@@ -359,7 +373,6 @@ exports.main = async (event, context) => {
   });
 
   browser.close();
-  console.log(content)
   console.log(articleName, author);
   let response = await notion.pages.create({
     parent: {
@@ -452,10 +465,12 @@ exports.main = async (event, context) => {
         }
     }).catch(e => e)
     if (response.code === 'validation_error') {
+      console.log(content);
       return {
         errMsg: '收藏失败，可能的原因有：\n① 请不要删除或更名初始的数据库列。可在用户绑定页面重新绑定以修复 \n② 文章含有无法解析的块，可以向开发者反馈\n ③无效的Token或DatabaseID'
       }
     } else {
+      console.log(content);
       return {
         errMsg:'文章过长或含有不能解析的HTML标签，剪藏文章内容失败，但成功保存链接到Notion。可以尝试向开发者反馈此问题。'
       }

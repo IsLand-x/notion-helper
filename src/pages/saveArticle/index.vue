@@ -124,6 +124,7 @@ const handleSave = () => {
         </Card>
         <Card>
           <div class="p-2">安卓用户也可以直接通过”公众号推送->右上角三个点->更多打开方式“中打开Notion助手，更方便地将文章保存到Notion。</div>
+          <div class="p-2">ios用户也可以暂时将文章链接复制到备忘录中，使用批量导入功能提高使用体验。</div>
         </Card>
         <SButton1 @click="handleSave" class="mx-2">保 存</SButton1>
       </div>
@@ -162,5 +163,8 @@ const handleSave = () => {
         v-if="errMsg.includes('请求超时')"
       >重 试</SButton>
     </FadeTransition>
+    <Card>
+      <official-account/>
+    </Card>
   </div>
 </template>

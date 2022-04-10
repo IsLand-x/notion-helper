@@ -16,13 +16,13 @@
                     "name": "",
                     "pathName": "pages/saveArticle/index",
                     "query": "",
-                    "launchMode": "default",
                     "scene": 1173,
+                    "launchMode": "default",
                     "referrerInfo": {
                         "materials": [
                             {
                                 "type": "text/html",
-                                "path": "https://mp.weixin.qq.com/s/CkMmSOR-QjuOWrrNwwNfKw",
+                                "path": "https://mp.weixin.qq.com/s/W-3X-DQ6ldIkr9Qh6dCf5A",
                                 "name": "",
                                 "size": 0
                             }
@@ -75,8 +75,22 @@
                     "name": "",
                     "pathName": "pages/questions/index",
                     "query": "",
-                    "scene": null,
-                    "launchMode": "default"
+                    "launchMode": "default",
+                    "scene": null
+                },
+                {
+                    "name": "",
+                    "pathName": "pages/index/index",
+                    "query": "",
+                    "launchMode": "default",
+                    "scene": null
+                },
+                {
+                    "name": "",
+                    "pathName": "pages/batchSave/index",
+                    "query": "",
+                    "launchMode": "default",
+                    "scene": null
                 }
             ]
         }

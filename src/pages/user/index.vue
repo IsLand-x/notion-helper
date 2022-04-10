@@ -54,6 +54,23 @@ const handleSave = async () => {
     showToast({ icon: 'none', title: result.errMsg })
   }
 }
+
+const handleDatabaseId = e => {
+  if(typeof e !== 'string'){
+    return
+  }
+  if(e.startsWith("https://www.notion.so/")){
+    if(e.includes("?v=")){
+      setTimeout(()=>{
+        db.value=e.slice(22,22+32)
+      })
+    }else{
+      showToast({icon:'none',title:'尝试解析失败。请检查URL正确性。'})
+    }
+  }else{
+    db.value=e
+  }
+}
 </script>
 
 <template>
@@ -65,7 +82,12 @@ const handleSave = async () => {
         @update:model-value="e => key = e"
         label="Internal Integration Token"
       />
-      <SInput :modelValue="db" @update:model-value="e => db = e" label="Database ID" />
+      <SInput 
+        :modelValue="db" 
+        @update:model-value="handleDatabaseId" 
+        label="Database ID" 
+        extra="可粘贴DatabaseId或者Url，若为Url助手会尝试自动解析并提取。请确保Url正确性"
+      />
     </Card>
     <div style="margin-top:auto">
       <SButton class="m-2" @click="handleSave">绑 定</SButton>

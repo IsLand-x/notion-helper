@@ -9,6 +9,8 @@ import user from '../../assets/user.png';
 import roadmap from '../../assets/roadmap.png';
 import copy from '../../assets/copy.png';
 import question from '../../assets/question.png';
+import batchSave from '../../assets/batch-save.png';
+
 import { navigateTo } from '@tarojs/taro';
 import styles from './index.module.less';
 import logo from '../../assets/notion_logo.png';
@@ -58,15 +60,16 @@ export default {
     <Card>
       <div :class="styles.wrapper">
         <img :src="logo" :class="styles.img" />
+        <div :class="styles.slogan">把喜欢的文章收藏到Notion</div>
       </div>
-      <div :class="styles.slogan">把喜欢的文章收藏到Notion</div>
     </Card>
     <Menu>
       <MenuItem :icon="book" name="使用教程" @click="navigateTo({ url: '/pages/book/index' })" />
       <MenuItem :icon="copy" name="文章保存" @click="navigateTo({ url: '/pages/saveArticle/index' })" />
+      <MenuItem :icon="batchSave" name="批量保存" @click="navigateTo({ url: '/pages/batchSave/index' })" />
       <MenuItem :icon="user" name="信息绑定" @click="navigateTo({ url: '/pages/user/index' })" />
       <MenuItem :icon="question" name="常见问题" @click="navigateTo({ url: '/pages/questions/index' })" />
-      <MenuItem :icon="feedback" name="问题反馈" @click="navigateTo({ url: '/pages/feedback/index' })" />
+      <MenuItem :icon="feedback" name="问题反馈 & 加入用户群" @click="navigateTo({ url: '/pages/feedback/index' })" />
       <MenuItem
         :icon="roadmap"
         name="更新日志"
@@ -75,6 +78,9 @@ export default {
       />
     </Menu>
 
+    <Card>
+      <official-account/>
+    </Card>
     <div
       class="text-xs text-gray text-center mt-auto pb-4"
     >Version {{ globalStore.version }} | Copyright 2022 @Island All Rights Reserved.</div>
