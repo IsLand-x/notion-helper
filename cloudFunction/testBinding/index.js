@@ -19,11 +19,6 @@ exports.main = async (event, context) => {
       errMsg:"Database ID长度应当为32位，请检查"
     }
   }
-  if (event.key.length !== 50) {
-    return {
-      errMsg:"Token长度应当为50位，请检查"
-    }
-  }
   const notion = new Client({
     auth: event.key
   });
@@ -51,7 +46,7 @@ exports.main = async (event, context) => {
   const errMsg = {
       unauthorized:'Token错误,请检查',
       validation_error:'表头错误。若Token和Id正确，可尝试新建数据库(不要更改表头)解决该问题。',
-      object_not_found:'ID错误或未引入integration,请检查',
+      object_not_found:'Database ID错误或未引入integration,请检查',
   }
   if(errMsg[response.code]){
       return {

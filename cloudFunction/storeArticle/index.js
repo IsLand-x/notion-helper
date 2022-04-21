@@ -1,26 +1,28 @@
 // 云函数入口文件
 const cloud = require('wx-server-sdk')
 cloud.init()
-
-const { Client } = require('@notionhq/client');
+const _ = cloud.database().command;
+const {
+  Client
+} = require('@notionhq/client');
 const uuid = require('uuid');
 
 
 // 云函数入口函数
 exports.main = async (event, context) => {
-  
+
   const puppeteer = require("puppeteer");
-  const { OPENID } = await cloud.getWXContext()
-  console.log("OPENID: ",OPENID)
-  const { data } = await cloud.database()
+  const {
+    OPENID
+  } = await cloud.getWXContext()
+  console.log("OPENID: ", OPENID)
+  console.log("URL: ", event.url)
+  const {
+    data
+  } = await cloud.database()
     .collection('user')
     .where({
       openid: OPENID
-    })
-    .field({
-      openid: true,
-      key: true,
-      db: true
     })
     .limit(1)
     .get();
@@ -31,12 +33,15 @@ exports.main = async (event, context) => {
   }
   const {
     key,
-    db
+    db,
+    articleSaveCnt
   } = data[0]
   const notion = new Client({
     auth: key
   });
-
+  console.log("SECRET: ", key);
+  console.log("DB: ", db);
+  console.log("ArticleSaveCnt: ", articleSaveCnt)
   const browser = await puppeteer.launch({
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
   });
@@ -57,17 +62,19 @@ exports.main = async (event, context) => {
       return null
     }
   })
-  console.log("NOT FOUND MSG: ",notFound)
+  console.log("NOT FOUND MSG: ", notFound)
   if (notFound) {
     browser.close();
     return {
-      errMsg:notFound+", 请确认链接是否正确。"
+      errMsg: notFound + ", 请确认链接是否正确。"
     }
   }
   const articleName = await page.$$eval("#activity-name", (e) => e[0].textContent.trim())
   const author = await page.$$eval("#js_name", e => e[0].textContent.trim());
   const time = await page.$$eval("#publish_time", e => e[0].textContent.trim())
   const bgImgUrl = await page.evaluate(() => document.head.querySelector('meta[property="og:image"]').getAttribute('content'))
+
+  console.log(articleName, author);
 
   const content = await page.evaluate(async () => {
     const content = document.querySelector('#js_content')
@@ -115,6 +122,7 @@ exports.main = async (event, context) => {
           return processPreBlock(ele);
         case "MPPROFILE":
         case "MPVIDEOSNAP":
+        case "SCRIPT":
           return [];
         default:
           return treatAsParagraph(ele)
@@ -136,13 +144,15 @@ exports.main = async (event, context) => {
       const processedChildren = []
       let temp = []
       const pushCodeLine = () => {
-        const codeLine = parseTextChildren({ childNodes: temp }).map(r=>r.text.content).join("");
-          processedChildren.push({
-            type: "text",
-            text: {
-              content:codeLine
-            }
-          })
+        const codeLine = parseTextChildren({
+          childNodes: temp
+        }).map(r => r.text.content).join("");
+        processedChildren.push({
+          type: "text",
+          text: {
+            content: codeLine
+          }
+        })
       }
       for (const x of rawChildren) {
         if (x.tagName !== 'BR') {
@@ -150,21 +160,21 @@ exports.main = async (event, context) => {
         } else {
           temp.push({
             nodeName: '#text',
-            nodeValue:"\n"
+            nodeValue: "\n"
           })
           pushCodeLine()
-          temp=[]
+          temp = []
         }
       }
       if (temp.length) {
         pushCodeLine()
-        temp=[]
+        temp = []
       }
       return [{
         type: "code",
         code: {
-          language:'typescript',
-          rich_text:processedChildren
+          language: 'typescript',
+          rich_text: processedChildren
         }
       }]
     }
@@ -203,7 +213,7 @@ exports.main = async (event, context) => {
       }]
     }
     const treatAsImg = ele => {
-      return ele.dataset.src!="" ? [{
+      return ele.dataset.src != "" ? [{
         type: 'image',
         image: {
           type: 'external',
@@ -211,7 +221,7 @@ exports.main = async (event, context) => {
             url: formatImgUrl(ele.dataset.src)
           }
         }
-      }]:[]
+      }] : []
     }
     const treatAsQuote = ele => {
       if (isAllTextChildren(ele)) {
@@ -222,17 +232,24 @@ exports.main = async (event, context) => {
           }
         }]
       } else {
-        let [first,...rest] = genNotionFormat({ tagName: "P", childNodes: ele.childNodes })
+        let [first, ...rest] = genNotionFormat({
+          tagName: "P",
+          childNodes: ele.childNodes
+        })
         let firstRichText = null
-        if(first.paragraph){
+        if (first.paragraph) {
           firstRichText = first.paragraph.rich_text;
-          rest.shift()
         }
         return [{
           type: "quote",
           quote: {
-            rich_text: firstRichText || [{type:'text',text:{content:''}}],
-            children: rest.length!==0?rest : undefined
+            rich_text: firstRichText || [{
+              type: 'text',
+              text: {
+                content: ''
+              }
+            }],
+            children: rest.length !== 0 ? rest : undefined
           }
         }]
       }
@@ -245,7 +262,7 @@ exports.main = async (event, context) => {
     }
     const formatImgUrl = url => {
       const [first] = url.split("?");
-      return first+'.png'
+      return first + '.png'
     }
     const treatAsFigure = element => {
       const hasOnlyImgNode = element => Array.from(element.childNodes).length === 1 && element.childNodes[0].tagName.toLowerCase() === 'img'
@@ -263,12 +280,17 @@ exports.main = async (event, context) => {
         if (isTextyNode(x)) {
           temp.push(x)
         } else {
-          temp.length && result.push(...genNotionFormat({ tagName: "P", childNodes: temp }))
+          temp.length && result.push(...genNotionFormat({
+            tagName: "P",
+            childNodes: temp
+          }))
           result.push(...genNotionFormat(x))
           temp = []
         }
       }
-      temp.length && result.push(...treatAsParagraph({ childNodes: temp }))
+      temp.length && result.push(...treatAsParagraph({
+        childNodes: temp
+      }))
       return result
     }
     const treatAsHeading = (element) => {
@@ -297,10 +319,10 @@ exports.main = async (event, context) => {
       }
     }
     const isTextyNode = ele => {
-      if(ele.tagName==='CODE' && Array.from(ele.childNodes).length!==1){
+      if (ele.tagName === 'CODE' && Array.from(ele.childNodes).length !== 1) {
         return false
       }
-      return (ele.nodeName === '#text' || ['br', 'strong', 'b', 'em', 'i', 'a', 'span', 'u', 'del', 'code','sub','sup'].includes((ele.tagName || "").toLowerCase()))
+      return (ele.nodeName === '#text' || ['br', 'strong', 'b', 'em', 'i', 'a', 'span', 'u', 'del', 'code', 'sub', 'sup'].includes((ele.tagName || "").toLowerCase()))
     };
     const isAllTextChildren = element => {
       for (const child of Array.from(element.childNodes)) {
@@ -313,6 +335,9 @@ exports.main = async (event, context) => {
     const parseTextChildren = element => {
       const result = []
       for (const child of Array.from(element.childNodes)) {
+        if (child.nodeName === '#comment') {
+          continue;
+        }
         if (child.nodeName === '#text') {
           result.push({
             type: 'text',
@@ -321,7 +346,7 @@ exports.main = async (event, context) => {
               link: null
             }
           })
-        } else if (['strong', 'b', 'em', 'i', 'span', 'u', 'del', 'code','sub','sup'].includes(child.tagName.toLowerCase())) {
+        } else if (['strong', 'b', 'em', 'i', 'span', 'u', 'del', 'code', 'sub', 'sup'].includes(child.tagName.toLowerCase())) {
           const temp = parseTextChildren(child)
           temp.forEach(eleObj => {
             if (['strong', 'b'].includes(child.tagName.toLowerCase())) {
@@ -373,7 +398,6 @@ exports.main = async (event, context) => {
   });
 
   browser.close();
-  console.log(articleName, author);
   let response = await notion.pages.create({
     parent: {
       database_id: db
@@ -381,7 +405,7 @@ exports.main = async (event, context) => {
     icon: {
       type: "external",
       external: {
-        url:"https://res.wx.qq.com/a/wx_fed/assets/res/NTI4MWU5.ico"
+        url: "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/WeChat_logo2.svg?sign=7c85c832ca495356bf87a586fa680acd&t=1650423985"
       }
     },
     cover: {
@@ -396,7 +420,7 @@ exports.main = async (event, context) => {
           text: {
             content: articleName
           },
-        },],
+        }, ],
       },
       Href: {
         url: event.url,
@@ -424,45 +448,45 @@ exports.main = async (event, context) => {
   }).catch(e => e)
   if (response.code === 'validation_error') {
     response = await notion.pages.create({
-        parent: {
-          database_id: db
-        },
-        cover: {
-          type: 'external',
-          external: {
-            url: bgImgUrl
-          }
-        },
-        properties: {
-          Name: {
-            title: [{
-              text: {
-                content: articleName
-              },
-            },],
-          },
-          Href: {
-            url: event.url,
-          },
-          Date: {
-            date: {
-              start: new Date(+new Date(time) + 8 * 3600 * 1000).toISOString().slice(0, -1) + '+08:00'
-            }
-          },
-          'Add Date': {
-            date: {
-              start: new Date(+new Date() + 8 * 3600 * 1000).toISOString().slice(0, -1) + '+08:00'
-            }
-          },
-          Author: {
-            rich_text: [{
-              type: 'text',
-              text: {
-                content: author
-              },
-            }]
-          }
+      parent: {
+        database_id: db
+      },
+      cover: {
+        type: 'external',
+        external: {
+          url: bgImgUrl
         }
+      },
+      properties: {
+        Name: {
+          title: [{
+            text: {
+              content: articleName
+            },
+          }, ],
+        },
+        Href: {
+          url: event.url,
+        },
+        Date: {
+          date: {
+            start: new Date(+new Date(time) + 8 * 3600 * 1000).toISOString().slice(0, -1) + '+08:00'
+          }
+        },
+        'Add Date': {
+          date: {
+            start: new Date(+new Date() + 8 * 3600 * 1000).toISOString().slice(0, -1) + '+08:00'
+          }
+        },
+        Author: {
+          rich_text: [{
+            type: 'text',
+            text: {
+              content: author
+            },
+          }]
+        }
+      }
     }).catch(e => e)
     if (response.code === 'validation_error') {
       console.log(content);
@@ -472,7 +496,7 @@ exports.main = async (event, context) => {
     } else {
       console.log(content);
       return {
-        errMsg:'文章过长或含有不能解析的HTML标签，剪藏文章内容失败，但成功保存链接到Notion。可以尝试向开发者反馈此问题。'
+        errMsg: '文章过长或含有不能解析的HTML标签，剪藏文章内容失败，但成功保存链接到Notion。可以尝试向开发者反馈此问题。'
       }
     }
   }
@@ -486,6 +510,19 @@ exports.main = async (event, context) => {
       errMsg: 'Database ID错误或未引入integration,请重新绑定以修复。'
     }
   }
+  const tryAddCount = () => {
+    cloud.database()
+      .collection('user')
+      .where({
+        openid: OPENID
+      })
+      .update({
+        data: {
+          articleSaveCnt: _.inc(1)
+        }
+      })
+  }
+  tryAddCount();
   return {
     errMsg: 'ok'
   }

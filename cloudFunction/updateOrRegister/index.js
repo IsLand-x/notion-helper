@@ -18,11 +18,6 @@ exports.main = async (event, context) => {
             errMsg:"Database ID 长度应当为32位，请检查"
         }
     }
-    if(event.key.length!==50){
-        return {
-            errMsg:"Token长度应当为50位，请检查"
-        }
-    }
     const {
         data: queryRes
     } = await cloud.database()

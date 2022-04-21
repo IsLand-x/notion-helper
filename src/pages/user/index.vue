@@ -60,13 +60,10 @@ const handleDatabaseId = e => {
     return
   }
   if(e.startsWith("https://www.notion.so/")){
-    if(e.includes("?v=")){
-      setTimeout(()=>{
-        db.value=e.slice(22,22+32)
-      })
-    }else{
-      showToast({icon:'none',title:'尝试解析失败。请检查URL正确性。'})
-    }
+    setTimeout(()=>{
+      const raw = e.split('/')
+      db.value= raw[raw.length-1].slice(0,32)
+    },100)
   }else{
     db.value=e
   }
@@ -92,5 +89,8 @@ const handleDatabaseId = e => {
     <div style="margin-top:auto">
       <SButton class="m-2" @click="handleSave">绑 定</SButton>
     </div>
+    <Card>
+      <div class="p-2">绑定前请先查看使用教程，若绑定遇到表头错误、token或者id不正确等问题，请查看首页->常见问题，或通过首页->加入用户群反馈。</div>
+    </Card>
   </div>
 </template>

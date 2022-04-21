@@ -24,7 +24,7 @@ const handleClickSave = () => {
     showToast({ icon: 'none', title: '请填写内容' })
     return;
   }
-  const isWechatUrl = url => typeof url === 'string' && url.trim().startsWith("https://mp.weixin.qq.com/");
+  const isWechatUrl = url => typeof url === 'string' && url.trim().includes("mp.weixin.qq.com");
   const result: string[] = []
   const tempRes = rawUrls.value.split("\n")
   for (const mayBeUrl of tempRes) {

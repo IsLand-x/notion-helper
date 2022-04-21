@@ -7,7 +7,7 @@ cloud.init()
 
 // 云函数入口函数
 exports.main = async (event, context) => {
-    if (!event.url.startsWith("https://mp.weixin.qq.com")) {
+    if (!event.url.includes("mp.weixin.qq.com")) {
         return {
             errMsg:"暂时仅支持微信公众号收藏"
         }
