@@ -49,6 +49,17 @@ exports.main = async (event, context) => {
       object_not_found:'Database ID错误或未引入integration,请检查',
   }
   if(errMsg[response.code]){
+    if(response.code==='validation_error'){
+      if(response.message.includes("path failed validation: path.database_id should be a valid uuid")){
+        return{
+          errMsg:'Database ID错误，请查看使用教程或加反馈群。'
+        }
+      }else if(response.message.includes("Cannot create")){
+        return {
+          errMsg:'表头错误。请查看首页常见问题或加反馈群。'
+        }
+      }
+    }
       return {
           errMsg:errMsg[response.code]
       }

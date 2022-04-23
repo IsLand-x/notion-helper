@@ -32,7 +32,7 @@
   background-color: rgb(240,240,240);
   .icon{
     background-color: rgb(237,237,237);
-    border-right: 1px solid #eeeeee;
+    border-right: 1px solid var(--color-border);
   }
 }
 
@@ -41,5 +41,19 @@
   width: 20rpx;
   border-radius: 100rpx;
   background-color: #d44d44;
-  border:6rpx solid #dedede;
+  border:6rpx solid var(--color-border);
+}
+
+@media (prefers-color-scheme:dark){
+  .item{
+    .icon{
+      background-color: #333;
+    }
+  }
+  .itemHover{
+    background-color: #111;
+    .icon{
+      background-color: #222;
+    }
+  }
 }

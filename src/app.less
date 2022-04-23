@@ -1,5 +1,33 @@
-.background{
-  background-color: rgb(237,237,237);
+page{
+  --color-bg: rgb(237,237,237);
+  --color-bg-input:rgb(247,247,247);
+  --color-bg-white:#fff;
+  --color-bg-gray:#ededed;
+  --color-bg-green:#f7fae1;
+  --color-bg-blue:#e5efff;
+
+  --color-border:#efefef;
+  --color-border-blue:#93b2f7;
+  --color-border-green:rgba(138,173,55,.6);
+  
+  --color-text:#666;
+  --color-text-red:#d44d44;
+  --color-text-green:#8aad37;
+  --color-text-blue:#3965cc;
+  --color-text-link:#5079d9;
+}
+
+@media (prefers-color-scheme:dark){
+  page{
+    --color-bg:rgb(0,0,0);
+    --color-bg-input:#444;
+    --color-bg-white:#222;
+    --color-bg-blue:rgba(33,45,57);
+
+    --color-text:#bbb;
+    
+    --color-border:#444;
+  }
 }
 
 .shadow {
@@ -15,10 +43,10 @@
 }
 
 page{
-  background-color: rgb(230,230,230);
+  background-color: var(--color-bg);
   min-height: 100vh;
   
-  color: #666;
+  color: var(--color-text);
 }
 
 .text-xs{
@@ -61,52 +89,48 @@ page{
   letter-spacing: .1rem;
 }
 
-.text-info{
-  color:#969696;
-}
-
 .text-primary{
-  color: #666;
+  color: var(--color-text);
 }
 
 .text-link{
-  color:#5079d9;
+  color:var(--color-text-link);
 }
 
 .text-blue{
-  color:#3965cc;
+  color:var(--color-text-blue);
 }
 
 .text-green{
-  color:#8aad37;
+  color:var(--color-text-green);
 }
 
 .text-red{
-  color:#d44d44;
+  color:var(--color-text-red);
 }
 
 .border-blue{
-  border: 1px solid #93b2f7;
+  border: 1px solid var(--color-border-blue);
 }
 
 .border-green{
-  border: 1px solid rgba(138,173,55,.6);
+  border: 1px solid var(--color-border-green);
 }
 
 .bg-blue{
-  background-color: #e5efff;
+  background-color: var(--color-bg-blue);
 }
 
 .bg-green{
-  background-color: #f7fae1;
+  background-color: var(--color-bg-green);
 }
 
 .bg-gray{
-  background-color: #ededed;
+  background-color: var(--color-bg-gray);
 }
 
 .bg-white{
-  background-color: #fff;
+  background-color: var(--color-bg-white);
 }
 
 .rounded{
@@ -114,23 +138,23 @@ page{
 }
 
 .border{
-  border:2rpx solid #efefef;
+  border:2rpx solid var(--color-border);
 }
 
 .border-right{
-  border-right: 2rpx solid #efefef;
+  border-right: 2rpx solid var(--color-border);
 }
 
 .border-bottom{
-  border-bottom: 2rpx solid #efefef;
+  border-bottom: 2rpx solid var(--color-border);
 }
 
 .border-left{
-  border-left: 2rpx solid #efefef;
+  border-left: 2rpx solid var(--color-border);
 }
 
 .border-top{
-  border-top: 2rpx solid #efefef;
+  border-top: 2rpx solid var(--color-border);
 }
 
 .gen-mp(@classBase,@cssProperty,@count,@i:1) when (@i<=@count){

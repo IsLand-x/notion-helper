@@ -21,4 +21,5 @@ export default {
       path: "/pages/saveArticle/index"
     }
   ],
+  darkmode: true
 }

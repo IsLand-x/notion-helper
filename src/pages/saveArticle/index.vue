@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useDidShow, showToast, getEnterOptionsSync, cloud, navigateTo, getCurrentPages,useDidHide,redirectTo } from '@tarojs/taro';
+import { useDidShow, showToast, getEnterOptionsSync, cloud, navigateTo, getCurrentPages } from '@tarojs/taro';
 import { ref } from 'vue';
 import Header from '../../components/Header/index.vue'
 import Card from '../../components/Card/index.vue';
@@ -39,7 +39,7 @@ useDidShow(() => {
   if (!['android', 'devtools'].includes(globalStore.platform)) {
     return;
   }
-  if(getCurrentPages().length>1){
+  if (getCurrentPages().length > 1) {
     return;
   }
   const { forwardMaterials = [] } = getEnterOptionsSync();
@@ -107,14 +107,8 @@ const handleSave = () => {
     <Card>
       <div :class="styles.wrapper">
         <img :src="logo" :class="styles.img" />
-        <progress
-          border-radius="100"
-          :percent="percentShow"
-          :strokeWidth="6"
-          active
-          :activeColor="isError ? '#d44d44' : percentShow === 100 ? '#8aad37' : '#3965cc'"
-          v-if="percentShow !== 0"
-        />
+        <progress border-radius="100" :percent="percentShow" :strokeWidth="6" active
+          :activeColor="isError ? '#d44d44' : percentShow === 100 ? '#8aad37' : '#3965cc'" v-if="percentShow !== 0" />
       </div>
     </Card>
     <FadeTransition>
@@ -148,23 +142,15 @@ const handleSave = () => {
       </Card>
     </FadeTransition>
     <FadeTransition>
-      <SButton
-        @click="navigateTo({ url: '/pages/user/index' })"
-        class="m-2"
-        style="animationDuration: 0.5s"
-        v-if="errMsg.includes('绑定')"
-      >去 绑 定</SButton>
+      <SButton @click="navigateTo({ url: '/pages/user/index' })" class="m-2" style="animationDuration: 0.5s"
+        v-if="errMsg.includes('绑定')">去 绑 定</SButton>
     </FadeTransition>
     <FadeTransition>
-      <SButton
-        @click="saveArticle"
-        class="m-2"
-        style="animationDuration: 0.5s"
-        v-if="errMsg.includes('请求超时')"
-      >重 试</SButton>
+      <SButton @click="saveArticle" class="m-2" style="animationDuration: 0.5s" v-if="errMsg.includes('请求超时')">重 试
+      </SButton>
     </FadeTransition>
     <Card>
-      <official-account/>
+      <official-account />
     </Card>
   </div>
 </template>

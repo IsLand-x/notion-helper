@@ -11,6 +11,9 @@ import RoadMapItem from './components/RoadMapItem/index.vue';
     <Header :canGoBack="true">更新日志</Header>
     <Card>
       <div :class="styles.wrapper">
+        <RoadMapItem date="2022-04-23" version="0.0.6">
+          <div>适配暗黑模式。</div>
+        </RoadMapItem>
         <RoadMapItem date="2022-04-10" version="0.0.5">
           <div>新增批量收藏模块。</div>
           <div>优化使用教程。</div>
