@@ -41,7 +41,10 @@ exports.main = async (event, context) => {
         rich_text:{}
       }
     }
-  }).catch(e => e)
+  }).catch(e => {
+    console.error(e)
+    return e
+  })
   console.log(response);
   const errMsg = {
       unauthorized:'Token错误,请检查',
@@ -63,6 +66,11 @@ exports.main = async (event, context) => {
       return {
           errMsg:errMsg[response.code]
       }
+  }
+  if(Reflect.ownKeys(response).includes("stack")){
+    return {
+      errMsg:"Token或者Database Id不合法"
+    }
   }
   return {errMsg:'ok',data:true};
 }

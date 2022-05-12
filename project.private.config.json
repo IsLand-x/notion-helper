@@ -16,8 +16,8 @@
                     "name": "",
                     "pathName": "pages/saveArticle/index",
                     "query": "",
-                    "scene": 1173,
                     "launchMode": "default",
+                    "scene": 1173,
                     "referrerInfo": {
                         "materials": [
                             {
@@ -91,6 +91,13 @@
                     "query": "",
                     "launchMode": "default",
                     "scene": null
+                },
+                {
+                    "name": "",
+                    "pathName": "pages/index/index2",
+                    "query": "",
+                    "scene": null,
+                    "launchMode": "default"
                 }
             ]
         }

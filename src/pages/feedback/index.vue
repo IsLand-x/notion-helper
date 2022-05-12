@@ -24,9 +24,9 @@ const handleSubmit = async () => {
 }
 
 const feedbackGroupUrl = ref('')
-onMounted(async ()=>{
-  const {result} = await cloud.callFunction({name:"getAddGroupImage"}) as any;
-  feedbackGroupUrl.value=result.data
+onMounted(async () => {
+  const { result } = await cloud.callFunction({ name: "getAddGroupImage" }) as any;
+  feedbackGroupUrl.value = result.data
 })
 
 </script>
@@ -55,27 +55,20 @@ onMounted(async ()=>{
     <SButton @click="handleSubmit" class="mx-2">提交</SButton> -->
 
     <Card>
-      <div class="p-2">Hi，我是Notion的开发者IsLand，如果你在使用过程中遇到问题或有宝贵建议，可以加群反馈。如果这个工具对你有所帮助，欢迎推荐给周围需要的人，也欢迎关注我的公众号，获得更及时的更新推送和技术浅谈~</div>
+      <div class="p-2">
+        Hi，我是Notion的开发者IsLand，如果你在使用过程中遇到问题或有宝贵建议，可以加群反馈。如果这个工具对你有所帮助，欢迎推荐给周围需要的人，也欢迎关注我的公众号，获得更及时的更新推送和技术浅谈~</div>
     </Card>
     <Card>
       <div class="p-2">
         微信公众号（长按图片可跳转）
-        <image 
-        style="height:200rpx"
-        mode="aspectFit"
-        show-menu-by-longpress="true"
-        src="cloud://cloud1-0gdb05jw5581957d.636c-cloud1-0gdb05jw5581957d-1310720469/output-onlinepngtools-min.png"/>
+        <image style="height:200rpx" mode="aspectFit" show-menu-by-longpress="true"
+          src="cloud://cloud1-0gdb05jw5581957d.636c-cloud1-0gdb05jw5581957d-1310720469/output-onlinepngtools-min.png" />
       </div>
     </Card>
     <Card>
       <div class="p-2">
         Notion助手用户群（长按图片可跳转）
-        <image 
-        style="margin-top: 10rpx;"
-        :src="feedbackGroupUrl" 
-        mode="aspectFit" 
-        show-menu-by-longpress="true"
-        />
+        <image style="margin-top: 10rpx;" :src="feedbackGroupUrl" mode="aspectFit" show-menu-by-longpress="true" />
       </div>
     </Card>
   </div>

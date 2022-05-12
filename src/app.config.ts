@@ -1,4 +1,5 @@
 export default {
+  themeLocation: "theme.json",
   pages: [
     'pages/index/index',
     'pages/saveArticle/index',
@@ -10,7 +11,7 @@ export default {
     'pages/batchSave/index'
   ],
   window: {
-    backgroundTextStyle: 'light',
+    backgroundColor: "@bgColor",
     navigationStyle: 'custom',
   },
   supportedMaterials: [

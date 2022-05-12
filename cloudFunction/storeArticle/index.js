@@ -5,7 +5,6 @@ const _ = cloud.database().command;
 const {
   Client
 } = require('@notionhq/client');
-const uuid = require('uuid');
 
 
 // 云函数入口函数
@@ -17,6 +16,11 @@ exports.main = async (event, context) => {
   } = await cloud.getWXContext()
   console.log("OPENID: ", OPENID)
   console.log("URL: ", event.url)
+  if(event.url.includes("mp.weixin.qq.com/mp/appmsgalbum?")){
+    return {
+      errMsg:"暂不支持收藏文章列表。"
+    }
+  }
   const {
     data
   } = await cloud.database()
@@ -46,17 +50,15 @@ exports.main = async (event, context) => {
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
   });
 
+  // const browser = await puppeteer.connect({
+  //   browserWSEndpoint: "ws://localhost:9222/devtools/browser/8cf4f4c2-a303-4bb3-bd27-271c2ef438d2"
+  //   });
+
   const page = await browser.newPage();
   await page.goto(event.url);
-  await page.exposeFunction('uuid', () => {
-    return uuid.v4()
-  })
-  await page.addScriptTag({
-    path: './node_modules/uuid/dist/umd/uuidv4.min.js'
-  })
   const notFound = await page.$$eval(".weui-msg .weui-msg__title.warn", e => {
     const ele = e[0]
-    if (ele) {
+    if (ele && ele.textContent) {
       return ele.textContent.trim()
     } else {
       return null
@@ -79,7 +81,7 @@ exports.main = async (event, context) => {
   const content = await page.evaluate(async () => {
     const content = document.querySelector('#js_content')
     const flatten = element => {
-      while (Array.from(element.children).length === 1) {
+      while (Array.from(element.children).length === 1 && Array.from(element.children[0]).length !== 0 ) {
         element = element.children[0]
       }
       return Array.from(element.children)
@@ -213,7 +215,7 @@ exports.main = async (event, context) => {
       }]
     }
     const treatAsImg = ele => {
-      return ele.dataset.src != "" ? [{
+      return !!ele.dataset.src ? [{
         type: 'image',
         image: {
           type: 'external',
@@ -261,7 +263,9 @@ exports.main = async (event, context) => {
       }]
     }
     const formatImgUrl = url => {
-      const [first] = url.split("?");
+      console.log(url)
+      let [first] = url.split("?");
+      first = first.replace("http://","https://")
       return first + '.png'
     }
     const treatAsFigure = element => {
@@ -322,7 +326,7 @@ exports.main = async (event, context) => {
       if (ele.tagName === 'CODE' && Array.from(ele.childNodes).length !== 1) {
         return false
       }
-      return (ele.nodeName === '#text' || ['br', 'strong', 'b', 'em', 'i', 'a', 'span', 'u', 'del', 'code', 'sub', 'sup'].includes((ele.tagName || "").toLowerCase()))
+      return (ele.nodeName === '#text' || (['br', 'strong', 'b', 'em', 'i', 'a', 'span', 'u', 'del', 'code', 'sub', 'sup'].includes((ele.tagName || "").toLowerCase()) && Array.from(ele.childNodes).every(el=>isTextyNode(el)))) 
     };
     const isAllTextChildren = element => {
       for (const child of Array.from(element.childNodes)) {
@@ -332,6 +336,7 @@ exports.main = async (event, context) => {
       }
       return true;
     }
+    const isUrl = str=> str && str.startsWith("http")
     const parseTextChildren = element => {
       const result = []
       for (const child of Array.from(element.childNodes)) {
@@ -342,7 +347,7 @@ exports.main = async (event, context) => {
           result.push({
             type: 'text',
             text: {
-              content: child.nodeValue,
+              content: child.nodeValue.trim(),
               link: null
             }
           })
@@ -377,7 +382,7 @@ exports.main = async (event, context) => {
             type: 'text',
             text: {
               content: child.textContent,
-              link: child.href ? {
+              link: isUrl(child.href) ? {
                 url: child.href
               } : null
             }

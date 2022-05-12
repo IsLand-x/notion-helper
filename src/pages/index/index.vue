@@ -70,19 +70,14 @@ export default {
       <MenuItem :icon="user" name="信息绑定" @click="navigateTo({ url: '/pages/user/index' })" />
       <MenuItem :icon="question" name="常见问题" @click="navigateTo({ url: '/pages/questions/index' })" />
       <MenuItem :icon="feedback" name="问题反馈 & 加入用户群" @click="navigateTo({ url: '/pages/feedback/index' })" />
-      <MenuItem
-        :icon="roadmap"
-        name="更新日志"
-        @click="handleClickDot(), navigateTo({ url: '/pages/roadmap/index' })"
-        :dot="showDot"
-      />
+      <MenuItem :icon="roadmap" name="更新日志" @click="handleClickDot(), navigateTo({ url: '/pages/roadmap/index' })"
+        :dot="showDot" />
     </Menu>
 
     <Card>
-      <official-account/>
+      <official-account />
     </Card>
-    <div
-      class="text-xs text-gray text-center mt-auto pb-4"
-    >Version {{ globalStore.version }} | Copyright 2022 @Island All Rights Reserved.</div>
+    <div class="text-xs text-gray text-center mt-auto pb-4">Version {{ globalStore.version }} | Copyright 2022 @Island
+      All Rights Reserved.</div>
   </div>
 </template>

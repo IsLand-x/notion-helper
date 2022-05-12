@@ -11,6 +11,9 @@ import RoadMapItem from './components/RoadMapItem/index.vue';
     <Header :canGoBack="true">更新日志</Header>
     <Card>
       <div :class="styles.wrapper">
+        <RoadMapItem date="2022-04-23" version="0.0.7">
+          <div>新增绑定视频教程跳转。（感谢用户 @阿江要努力鸭 提供的视频教程）</div>
+        </RoadMapItem>
         <RoadMapItem date="2022-04-23" version="0.0.6">
           <div>适配暗黑模式。</div>
         </RoadMapItem>
