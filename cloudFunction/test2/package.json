@@ -1,8 +1,8 @@
 {
-    "name": "feedback",
+    "name": "test2",
     "version": "1.0.0",
     "description": "",
-    "main": "index.js",
+    "main": "dist/index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
     },
@@ -10,7 +10,10 @@
     "license": "ISC",
     "dependencies": {
         "@notionhq/client": "^1.0.4",
-        "nodemailer": "^6.7.3",
+        "chromedriver": "^101.0.0",
+        "puppeteer": "^14.0.0",
+        "tsup": "^5.12.7",
+        "typescript": "^4.6.4",
         "wx-server-sdk": "~2.6.1"
     }
 }
