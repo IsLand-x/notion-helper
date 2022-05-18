@@ -27,11 +27,12 @@ type IUserData = {
 cloud.init()
 const _ = cloud.database().command
 
+const debugUrl = "ws://localhost:9222/devtools/browser/4640dd77-3f96-478a-8885-e57025278a48"
+
 async function openPage(url: string, adaptor: IArticleAdaptor) {
-  const browser = await puppeteer.launch()
-  // const browser = await puppeteer.connect({
-  //   browserWSEndpoint: "ws://localhost:9222/devtools/browser/35627bf4-963e-4302-82ad-f91872df472c"
-  // });
+  const browser = !debugUrl ? await puppeteer.launch() : await puppeteer.connect({
+    browserWSEndpoint: debugUrl
+  });
   const page = await browser.newPage()
   await page.setRequestInterception(true)
   page.on("request", (interceptedRequest => {
@@ -44,7 +45,7 @@ async function openPage(url: string, adaptor: IArticleAdaptor) {
   await page.setBypassCSP(true)
   await page.goto(url)
   await page.addScriptTag({ path: './preload.js' })
-  const closeBrowser = () => false && browser.close()
+  const closeBrowser = () => !debugUrl && browser.close()
   return { page, closeBrowser }
 }
 

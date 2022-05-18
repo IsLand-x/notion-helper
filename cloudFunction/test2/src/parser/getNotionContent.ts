@@ -1,5 +1,3 @@
-import { IArticleAdaptor } from "../adaptor/adaptor"
-
 function isTextNode(el: Node): el is Text {
   return el.nodeType === 3
 }
@@ -42,10 +40,6 @@ function isLiElement(el: Element): el is HTMLLIElement {
 
 function isCodeElement(el: Element): el is HTMLElement {
   return ["CODE"].includes(el.tagName)
-}
-
-function isPreElement(el: Element): el is HTMLPreElement {
-  return ["PRE"].includes(el.tagName)
 }
 
 function isAnchorElement(el: Element): el is HTMLAnchorElement {
@@ -105,8 +99,7 @@ export async function convertBody() {
     ) {
       return []
     }
-
-    if (isTextNode(el) || isElementNode(el) && isSpanElement(el)) {
+    if (isTextNode(el)) {
       const p = document.createElement("p")
       p.textContent = el.textContent
       return el.textContent.trim() !== "" ? treatAsParagraph(p) : []
@@ -129,12 +122,11 @@ export async function convertBody() {
       return treatAsListItem(el)
     } else if (isCodeElement(el)) {
       return treatAsCodeBlock(el)
-    } else if (isPreElement(el)) {
-      return treatAsPre(el)
     } else if (isTableElement(el)) {
       return treatAsTable(el)
     } else {
       const p = document.createElement("p")
+      console.log(el.tagName)
       p.replaceChildren(...el.childNodes)
       return treatAsParagraph(p)
     }
@@ -168,7 +160,13 @@ export async function convertBody() {
       for (let i = 0; i < cells.length; i++) {
         const td = cells[i]
         const processed = await genNotionFormat(td)
-        children.push(processed[0].paragraph.rich_text)
+        children.push(processed[0]?.paragraph?.rich_text || [{
+          type: 'text',
+          text: {
+            content: 'Notion Table不支持该类型Block，剪藏失败',
+            link: null
+          }
+        }])
         if (td.rowSpan >= 2) {
           let currentTr = tr;
           for (let j = 0; j < td.rowSpan - 1; j++) {
@@ -197,22 +195,6 @@ export async function convertBody() {
         children: children
       }
     }]
-  }
-  const treatAsPre = async (el: HTMLPreElement) => {
-    const result = []
-    for (const x of Array.from(el.childNodes)) {
-      if (isTextyNode(x)) {
-        if (isElementNode(x) && isSpanElement(x) && x.textContent.trim() === "") {
-          continue
-        }
-        const p = document.querySelector("p")
-        p.appendChild(x)
-        result.push(...await treatAsParagraph(p))
-      } else {
-        result.push(...await genNotionFormat(x))
-      }
-    }
-    return result
   }
   const treatAsCodeBlock = (el: Element) => {
     const rawChildren = [...el.childNodes]
@@ -299,18 +281,9 @@ export async function convertBody() {
         }
       }
     }] : [{
-      type: "callout",
-      callout: {
-        rich_text: [{
-          type: "text",
-          text: {
-            content: "图片剪藏失败",
-          },
-        }],
-        icon: {
-          emoji: "⚠️"
-        },
-        color: "default"
+      type: "embed",
+      embed: {
+        url: rawSrc
       }
     }]
   }
@@ -382,6 +355,7 @@ export async function convertBody() {
     while (el.childElementCount === 1 && el.firstElementChild.tagName === 'P') {
       el = el.firstElementChild as HTMLParagraphElement
     }
+    console.log(isAllTextChildren(el), el)
     if (isAllTextChildren(el)) {
       return [{
         type: "paragraph",

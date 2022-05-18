@@ -48,7 +48,7 @@ class ZhihuPostAdaptor implements IArticleAdaptor {
     return [].includes(x)
   }
 
-  iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/zhihu.png?sign=0e50868ef0296cd857d99e11523c19b8&t=1652502082"
+  iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/zhihu.svg?sign=647ec89894c1427c1abd4085ac2a8058&t=1652853009"
 }
 
 export default new ZhihuPostAdaptor()

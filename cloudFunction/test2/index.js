@@ -84,7 +84,7 @@ var JuejinAdaptor = class {
     return /juejin\.cn\/post/.test(url);
   }
   authorName() {
-    const el = document.querySelector(".author-name");
+    const el = document.querySelector(".username");
     return getText(el);
   }
   articleName() {
@@ -167,7 +167,7 @@ var ZhihuPostAdaptor = class {
   constructor() {
     this.platform = "\u77E5\u4E4E\u4E13\u680F";
     this.contentSelector = ".Post-RichTextContainer";
-    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/zhihu.png?sign=0e50868ef0296cd857d99e11523c19b8&t=1652502082";
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/zhihu.svg?sign=647ec89894c1427c1abd4085ac2a8058&t=1652853009";
   }
   isMatch(url) {
     return /zhuanlan\.zhihu\.com\/p/.test(url);
@@ -207,7 +207,7 @@ var ZhihuPostAdaptor2 = class {
   constructor() {
     this.platform = "\u77E5\u4E4E\u95EE\u7B54";
     this.contentSelector = ".RichContent.RichContent--unescapable .RichText";
-    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/zhihu.png?sign=0e50868ef0296cd857d99e11523c19b8&t=1652502082";
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/zhihu.svg?sign=647ec89894c1427c1abd4085ac2a8058&t=1652853009";
   }
   isMatch(url) {
     return /www\.zhihu\.com\/question/.test(url);
@@ -245,7 +245,7 @@ var DoubanNoteAdaptor = class {
   constructor() {
     this.platform = "\u8C46\u74E3\u7B14\u8BB0";
     this.contentSelector = "#link-report";
-    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/douban.png";
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/douban.svg?sign=67b067b35836681cdd121444c0f57a13&t=1652853130";
   }
   isMatch(url) {
     return /www\.douban\.com\/note/.test(url);
@@ -284,6 +284,44 @@ var DoubanNoteAdaptor = class {
 };
 var doubanNoteAdaptor_default = new DoubanNoteAdaptor();
 
+// src/adaptor/segmentfaultAdaptor.ts
+var SegmentfaultAdaptor = class {
+  constructor() {
+    this.platform = "\u601D\u5426\u56FE\u6587";
+    this.contentSelector = "article.article";
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/segmentfault.svg";
+  }
+  isMatch(url) {
+    return /segmentfault\.com\/a/.test(url);
+  }
+  authorName() {
+    const el = document.querySelector("strong.align-self-center.font-size-14");
+    return getText(el);
+  }
+  articleName() {
+    const el = document.querySelector("a.text-body");
+    return getText(el);
+  }
+  publishTime() {
+    const el = document.querySelector("time");
+    return el.dateTime;
+  }
+  bgImgUrl() {
+    return null;
+  }
+  processImgUrl(url) {
+    return isLegalNotionImgFormat(url) ? url : null;
+  }
+  extractImgSrc(x) {
+    const rawSrc = x.dataset.src;
+    return rawSrc.startsWith("/") ? "https://segmentfault.com" + rawSrc : rawSrc;
+  }
+  shouldSkip(x) {
+    return [].includes(x);
+  }
+};
+var segmentfaultAdaptor_default = new SegmentfaultAdaptor();
+
 // src/adaptor/index.ts
 var adaptorArr = [
   mpAdaptor_default,
@@ -291,7 +329,8 @@ var adaptorArr = [
   sspaiAdaptor_default,
   zhihuPostAdaptor_default,
   zhihuAnswerAdaptor_default,
-  doubanNoteAdaptor_default
+  doubanNoteAdaptor_default,
+  segmentfaultAdaptor_default
 ];
 function getAdaptor(url) {
   for (const adaptor of adaptorArr) {
@@ -340,8 +379,11 @@ var import_puppeteer = __toESM(require("puppeteer"));
 var import_client = require("@notionhq/client");
 import_wx_server_sdk.default.init();
 var _ = import_wx_server_sdk.default.database().command;
+var debugUrl = "ws://localhost:9222/devtools/browser/4640dd77-3f96-478a-8885-e57025278a48";
 async function openPage(url, adaptor) {
-  const browser = await import_puppeteer.default.launch();
+  const browser = !debugUrl ? await import_puppeteer.default.launch() : await import_puppeteer.default.connect({
+    browserWSEndpoint: debugUrl
+  });
   const page = await browser.newPage();
   await page.setRequestInterception(true);
   page.on("request", (interceptedRequest) => {
@@ -355,7 +397,7 @@ async function openPage(url, adaptor) {
   await page.setBypassCSP(true);
   await page.goto(url);
   await page.addScriptTag({ path: "./preload.js" });
-  const closeBrowser = () => false;
+  const closeBrowser = () => !debugUrl && browser.close();
   return { page, closeBrowser };
 }
 async function saveToNotion(res, user, adaptor) {

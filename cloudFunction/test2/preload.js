@@ -55,7 +55,7 @@ var JuejinAdaptor = class {
     return /juejin\.cn\/post/.test(url);
   }
   authorName() {
-    const el = document.querySelector(".author-name");
+    const el = document.querySelector(".username");
     return getText(el);
   }
   articleName() {
@@ -138,7 +138,7 @@ var ZhihuPostAdaptor = class {
   constructor() {
     this.platform = "\u77E5\u4E4E\u4E13\u680F";
     this.contentSelector = ".Post-RichTextContainer";
-    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/zhihu.png?sign=0e50868ef0296cd857d99e11523c19b8&t=1652502082";
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/zhihu.svg?sign=647ec89894c1427c1abd4085ac2a8058&t=1652853009";
   }
   isMatch(url) {
     return /zhuanlan\.zhihu\.com\/p/.test(url);
@@ -178,7 +178,7 @@ var ZhihuPostAdaptor2 = class {
   constructor() {
     this.platform = "\u77E5\u4E4E\u95EE\u7B54";
     this.contentSelector = ".RichContent.RichContent--unescapable .RichText";
-    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/zhihu.png?sign=0e50868ef0296cd857d99e11523c19b8&t=1652502082";
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/zhihu.svg?sign=647ec89894c1427c1abd4085ac2a8058&t=1652853009";
   }
   isMatch(url) {
     return /www\.zhihu\.com\/question/.test(url);
@@ -216,7 +216,7 @@ var DoubanNoteAdaptor = class {
   constructor() {
     this.platform = "\u8C46\u74E3\u7B14\u8BB0";
     this.contentSelector = "#link-report";
-    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/douban.png";
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/douban.svg?sign=67b067b35836681cdd121444c0f57a13&t=1652853130";
   }
   isMatch(url) {
     return /www\.douban\.com\/note/.test(url);
@@ -255,6 +255,44 @@ var DoubanNoteAdaptor = class {
 };
 var doubanNoteAdaptor_default = new DoubanNoteAdaptor();
 
+// src/adaptor/segmentfaultAdaptor.ts
+var SegmentfaultAdaptor = class {
+  constructor() {
+    this.platform = "\u601D\u5426\u56FE\u6587";
+    this.contentSelector = "article.article";
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/segmentfault.svg";
+  }
+  isMatch(url) {
+    return /segmentfault\.com\/a/.test(url);
+  }
+  authorName() {
+    const el = document.querySelector("strong.align-self-center.font-size-14");
+    return getText(el);
+  }
+  articleName() {
+    const el = document.querySelector("a.text-body");
+    return getText(el);
+  }
+  publishTime() {
+    const el = document.querySelector("time");
+    return el.dateTime;
+  }
+  bgImgUrl() {
+    return null;
+  }
+  processImgUrl(url) {
+    return isLegalNotionImgFormat(url) ? url : null;
+  }
+  extractImgSrc(x) {
+    const rawSrc = x.dataset.src;
+    return rawSrc.startsWith("/") ? "https://segmentfault.com" + rawSrc : rawSrc;
+  }
+  shouldSkip(x) {
+    return [].includes(x);
+  }
+};
+var segmentfaultAdaptor_default = new SegmentfaultAdaptor();
+
 // src/adaptor/index.ts
 var adaptorArr = [
   mpAdaptor_default,
@@ -262,7 +300,8 @@ var adaptorArr = [
   sspaiAdaptor_default,
   zhihuPostAdaptor_default,
   zhihuAnswerAdaptor_default,
-  doubanNoteAdaptor_default
+  doubanNoteAdaptor_default,
+  segmentfaultAdaptor_default
 ];
 function getAdaptor(url) {
   for (const adaptor of adaptorArr) {
@@ -307,17 +346,11 @@ function isLiElement(el) {
 function isCodeElement(el) {
   return ["CODE"].includes(el.tagName);
 }
-function isPreElement(el) {
-  return ["PRE"].includes(el.tagName);
-}
 function isAnchorElement(el) {
   return ["A"].includes(el.tagName);
 }
 function isTableElement(el) {
   return ["TABLE"].includes(el.tagName);
-}
-function isSpanElement(el) {
-  return ["SPAN"].includes(el.tagName);
 }
 function shouldSkip(tag) {
   return ["TEXTAREA", "STYLE", "SCRIPT", "NOSCRIPT"].includes(tag);
@@ -374,7 +407,7 @@ async function convertBody() {
     if (!(isTextNode(el) || isElementNode(el)) || isElementNode(el) && (adaptor.shouldSkip(el.tagName) || shouldSkip(el.tagName))) {
       return [];
     }
-    if (isTextNode(el) || isElementNode(el) && isSpanElement(el)) {
+    if (isTextNode(el)) {
       const p = document.createElement("p");
       p.textContent = el.textContent;
       return el.textContent.trim() !== "" ? treatAsParagraph(p) : [];
@@ -394,12 +427,11 @@ async function convertBody() {
       return treatAsListItem(el);
     } else if (isCodeElement(el)) {
       return treatAsCodeBlock(el);
-    } else if (isPreElement(el)) {
-      return treatAsPre(el);
     } else if (isTableElement(el)) {
       return treatAsTable(el);
     } else {
       const p = document.createElement("p");
+      console.log(el.tagName);
       p.replaceChildren(...el.childNodes);
       return treatAsParagraph(p);
     }
@@ -412,6 +444,7 @@ async function convertBody() {
       children.push(...await processTr(x));
     }
     async function processTr(tr) {
+      var _a, _b;
       const shouldBeTrOrTh = tr.firstElementChild.tagName === "TH" ? "th" : "td";
       const childElements = [...tr.children];
       for (let i = 0; i < childElements.length; i++) {
@@ -432,7 +465,13 @@ async function convertBody() {
       for (let i = 0; i < cells.length; i++) {
         const td = cells[i];
         const processed = await genNotionFormat(td);
-        children2.push(processed[0].paragraph.rich_text);
+        children2.push(((_b = (_a = processed[0]) == null ? void 0 : _a.paragraph) == null ? void 0 : _b.rich_text) || [{
+          type: "text",
+          text: {
+            content: "Notion Table\u4E0D\u652F\u6301\u8BE5\u7C7B\u578BBlock\uFF0C\u526A\u85CF\u5931\u8D25",
+            link: null
+          }
+        }]);
         if (td.rowSpan >= 2) {
           let currentTr = tr;
           for (let j = 0; j < td.rowSpan - 1; j++) {
@@ -461,22 +500,6 @@ async function convertBody() {
         children
       }
     }];
-  };
-  const treatAsPre = async (el) => {
-    const result = [];
-    for (const x of Array.from(el.childNodes)) {
-      if (isTextyNode(x)) {
-        if (isElementNode(x) && isSpanElement(x) && x.textContent.trim() === "") {
-          continue;
-        }
-        const p = document.querySelector("p");
-        p.appendChild(x);
-        result.push(...await treatAsParagraph(p));
-      } else {
-        result.push(...await genNotionFormat(x));
-      }
-    }
-    return result;
   };
   const treatAsCodeBlock = (el) => {
     const rawChildren = [...el.childNodes];
@@ -556,18 +579,9 @@ async function convertBody() {
         }
       }
     }] : [{
-      type: "callout",
-      callout: {
-        rich_text: [{
-          type: "text",
-          text: {
-            content: "\u56FE\u7247\u526A\u85CF\u5931\u8D25"
-          }
-        }],
-        icon: {
-          emoji: "\u26A0\uFE0F"
-        },
-        color: "default"
+      type: "embed",
+      embed: {
+        url: rawSrc
       }
     }];
   };
@@ -639,6 +653,7 @@ async function convertBody() {
     while (el.childElementCount === 1 && el.firstElementChild.tagName === "P") {
       el = el.firstElementChild;
     }
+    console.log(isAllTextChildren(el), el);
     if (isAllTextChildren(el)) {
       return [{
         type: "paragraph",

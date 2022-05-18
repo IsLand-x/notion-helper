@@ -55,7 +55,7 @@ class DoubanNoteAdaptor implements IArticleAdaptor {
     return false
   }
 
-  iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/douban.png"
+  iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/douban.svg?sign=67b067b35836681cdd121444c0f57a13&t=1652853130"
 }
 
 export default new DoubanNoteAdaptor()

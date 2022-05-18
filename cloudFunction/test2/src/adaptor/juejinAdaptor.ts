@@ -10,7 +10,7 @@ class JuejinAdaptor implements IArticleAdaptor {
   }
 
   authorName() {
-    const el = document.querySelector(".author-name")
+    const el = document.querySelector(".username")
     return getText(el)
   }
 

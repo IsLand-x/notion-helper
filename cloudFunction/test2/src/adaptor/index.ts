@@ -4,6 +4,7 @@ import sspaiAdaptor from "./sspaiAdaptor";
 import zhihuPostAdaptor from "./zhihuPostAdaptor"
 import zhihuAnswerAdaptor from "./zhihuAnswerAdaptor";
 import doubanNoteAdaptor from "./doubanNoteAdaptor"
+import segmentfaultAdaptor from "./segmentfaultAdaptor";
 
 const adaptorArr = [
   mpAdaptor,
@@ -11,7 +12,8 @@ const adaptorArr = [
   sspaiAdaptor,
   zhihuPostAdaptor,
   zhihuAnswerAdaptor,
-  doubanNoteAdaptor
+  doubanNoteAdaptor,
+  segmentfaultAdaptor
 ]
 
 export function getAdaptor(url: string) {
