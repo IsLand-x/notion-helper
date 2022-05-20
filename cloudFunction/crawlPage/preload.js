@@ -273,7 +273,7 @@ var DoubanNoteAdaptor = class {
     this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/douban.svg?sign=67b067b35836681cdd121444c0f57a13&t=1652853130";
   }
   isMatch(url) {
-    return /www\.douban\.com\/note/.test(url);
+    return /douban\.com\/note/.test(url);
   }
   authorName() {
     const el = document.querySelector(".note-author");
@@ -337,7 +337,7 @@ var DoubanGroupAdaptor = class extends DoubanNoteAdaptor {
     this.platform = "\u8C46\u74E3\u5C0F\u7EC4";
   }
   isMatch(url) {
-    return /www\.douban\.com\/group/.test(url);
+    return /douban\.com\/group/.test(url);
   }
   authorName() {
     const el = document.querySelector(".topic-doc .from a");
@@ -467,6 +467,9 @@ function isAnchorElement(el) {
 function isTableElement(el) {
   return ["TABLE"].includes(el.tagName);
 }
+function isSpanElement(el) {
+  return ["SPAN"].includes(el.tagName);
+}
 function shouldSkip(tag) {
   return ["TEXTAREA", "STYLE", "SCRIPT", "NOSCRIPT"].includes(tag);
 }
@@ -499,7 +502,7 @@ function isTextLevelSemanticsElement(x) {
   ].includes(x);
 }
 function isSvgElement(el) {
-  return ["SVG"].includes(el.tagName);
+  return ["svg"].includes(el.tagName);
 }
 function replaceChildren(container, childNodes) {
   for (const node of childNodes) {
@@ -718,6 +721,9 @@ async function convertBody() {
       }];
     } else {
       const p = document.createElement("p");
+      while (el.childNodes.length === 1 && el.firstElementChild && isElementNode(el.firstElementChild)) {
+        el = el.firstElementChild;
+      }
       replaceChildren(p, [...el.childNodes]);
       let [first, ...rest] = await genNotionFormat(p);
       let firstRichText = null;
@@ -792,7 +798,8 @@ async function convertBody() {
     if (isElementNode(el) && isCodeElement(el) && Array.from(el.childNodes).length !== 1) {
       return false;
     }
-    return isTextNode(el) || isElementNode(el) && isTextLevelSemanticsElement(el.tagName) && Array.from(el.childNodes).every((el2) => isTextyNode(el2)) || isElementNode(el) && isSvgElement(el);
+    const result = isTextNode(el) || isElementNode(el) && (isSvgElement(el) || isTextLevelSemanticsElement(el.tagName) && Array.from(el.childNodes).every((child) => isTextyNode(child)));
+    return result;
   }
   const isAllTextChildren = (el) => {
     for (const child of Array.from(el.childNodes)) {
@@ -805,6 +812,15 @@ async function convertBody() {
   const isUrl = (str) => str.startsWith("http");
   function parseTextChildren(el) {
     const result = [];
+    if (isElementNode(el) && isSpanElement(el) && el.dataset.formula) {
+      result.push({
+        type: "equation",
+        equation: {
+          expression: el.dataset.formula
+        }
+      });
+      return result;
+    }
     for (const child of Array.from(el.childNodes)) {
       if (isTextNode(child)) {
         result.push({
@@ -814,9 +830,19 @@ async function convertBody() {
             link: null
           }
         });
+      } else if (isElementNode(child) && isSpanElement(child) && child.dataset.formula) {
+        result.push({
+          type: "equation",
+          equation: {
+            expression: child.dataset.formula
+          }
+        });
       } else if (isElementNode(child) && ["a", "strong", "b", "em", "i", "span", "u", "del", "code", "sub", "sup"].includes(child.tagName.toLowerCase())) {
         const temp = parseTextChildren(child);
         temp.forEach((eleObj) => {
+          if (eleObj.type === "equation") {
+            return;
+          }
           if (["strong", "b"].includes(child.tagName.toLowerCase())) {
             const annotations = eleObj.annotations || {};
             annotations.bold = true;

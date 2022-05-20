@@ -69,7 +69,7 @@ function isTextLevelSemanticsElement(x: string) {
 }
 
 function isSvgElement(el: Element): el is SVGAElement {
-  return ["SVG"].includes(el.tagName)
+  return ["svg"].includes(el.tagName)
 }
 
 function replaceChildren(container: Element, childNodes: Node[]) {
@@ -308,6 +308,9 @@ export async function convertBody() {
       }]
     } else {
       const p = document.createElement("p")
+      while (el.childNodes.length === 1 && el.firstElementChild && isElementNode(el.firstElementChild)) {
+        el = el.firstElementChild as HTMLQuoteElement
+      }
       replaceChildren(p, [...el.childNodes])
       let [first, ...rest] = await genNotionFormat(p)
       let firstRichText = null
@@ -387,16 +390,19 @@ export async function convertBody() {
       return false
     }
 
-    return (
+    const result = (
       isTextNode(el) ||
       (
         isElementNode(el) &&
-        isTextLevelSemanticsElement(el.tagName) &&
-        Array.from(el.childNodes).every(el => isTextyNode(el))
-      ) || (
-        isElementNode(el) && isSvgElement(el)
+        (
+          isSvgElement(el) ||
+          (isTextLevelSemanticsElement(el.tagName)) && Array
+            .from(el.childNodes)
+            .every(child => isTextyNode(child))
+        )
       )
     )
+    return result
   }
   const isAllTextChildren = (el: Element) => {
     for (const child of Array.from(el.childNodes)) {
@@ -409,6 +415,15 @@ export async function convertBody() {
   const isUrl = (str: string) => str.startsWith("http")
   function parseTextChildren(el: Element): any[] {
     const result = []
+    if (isElementNode(el) && isSpanElement(el) && el.dataset.formula) {
+      result.push({
+        type: "equation",
+        equation: {
+          expression: el.dataset.formula
+        }
+      })
+      return result
+    }
     for (const child of Array.from(el.childNodes)) {
       if (isTextNode(child)) {
         result.push({
@@ -418,12 +433,22 @@ export async function convertBody() {
             link: null
           }
         })
+      } else if (isElementNode(child) && isSpanElement(child) && child.dataset.formula) {
+        result.push({
+          type: "equation",
+          equation: {
+            expression: child.dataset.formula
+          }
+        })
       } else if (
         isElementNode(child) &&
         ['a', 'strong', 'b', 'em', 'i', 'span', 'u', 'del', 'code', 'sub', 'sup'].includes(child.tagName.toLowerCase())
       ) {
         const temp = parseTextChildren(child)
         temp.forEach((eleObj: any) => {
+          if (eleObj.type === "equation") {
+            return;
+          }
           if (['strong', 'b'].includes(child.tagName.toLowerCase())) {
             const annotations = eleObj.annotations || {}
             annotations.bold = true;

@@ -302,7 +302,7 @@ var DoubanNoteAdaptor = class {
     this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/douban.svg?sign=67b067b35836681cdd121444c0f57a13&t=1652853130";
   }
   isMatch(url) {
-    return /www\.douban\.com\/note/.test(url);
+    return /douban\.com\/note/.test(url);
   }
   authorName() {
     const el = document.querySelector(".note-author");
@@ -366,7 +366,7 @@ var DoubanGroupAdaptor = class extends DoubanNoteAdaptor {
     this.platform = "\u8C46\u74E3\u5C0F\u7EC4";
   }
   isMatch(url) {
-    return /www\.douban\.com\/group/.test(url);
+    return /douban\.com\/group/.test(url);
   }
   authorName() {
     const el = document.querySelector(".topic-doc .from a");
@@ -494,7 +494,7 @@ var import_puppeteer = __toESM(require("puppeteer"));
 var import_client = require("@notionhq/client");
 import_wx_server_sdk.default.init();
 var _ = import_wx_server_sdk.default.database().command;
-var debugUrl = false;
+var debugUrl = "ws://localhost:9222/devtools/browser/5768af6e-ee8d-40db-9b17-837d4f8397ea";
 var sleep = (ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
@@ -702,6 +702,7 @@ async function main(evt) {
   }
   const { page, closeBrowser } = await openPage(url, adaptor);
   const parsedRes = await parse(page, type).finally(closeBrowser);
+  console.log(parsedRes.articleBody);
   if (type === "getBasicInfo") {
     return {
       errMsg: "ok",

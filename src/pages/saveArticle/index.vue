@@ -34,9 +34,14 @@ const handleSave = (articleUrl: string) => {
     showToast({ title: '请粘贴URL', icon: 'none' })
     return
   }
+  const httpStartIdx = articleUrl.indexOf("http")
+  articleUrl = articleUrl.slice(httpStartIdx)
+  if (!articleUrl.trim().startsWith("http")) {
+    showToast({ title: '请检查URL是否合法' })
+  }
   resetStatus()
   setTimeout(() => {
-    url.value = articleUrl
+    url.value = articleUrl.trim()
   })
 }
 
@@ -82,7 +87,8 @@ useDidHide(resetStatus)
     <FadeTransition>
       <div style="animationDuration: 0.5s" v-if="url === ''">
         <Card>
-          <SInput :model-value="tempUrl" @update:model-value="e => tempUrl = e" label="文章链接" />
+          <SInput :model-value="tempUrl" @update:model-value="e => tempUrl = e" label="文章链接"
+            extra="若所填链接不以http开头，助手会自动截取http及其之后的所有字符作为文章链接" />
         </Card>
         <Card>
           <div>安卓用户也可以直接通过”公众号推送->右上角三个点->更多打开方式“中打开Notion助手，更方便地将文章保存到Notion。</div>

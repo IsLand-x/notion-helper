@@ -6,7 +6,7 @@ class DoubanGroupAdaptor extends DoubanNoteAdaptor {
   platform = '豆瓣小组'
 
   isMatch(url: string) {
-    return /www\.douban\.com\/group/.test(url)
+    return /douban\.com\/group/.test(url)
   }
 
   authorName() {

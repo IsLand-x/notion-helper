@@ -1,4 +1,8 @@
 module.exports = [{
+    question:"能否适配xxx平台？",
+    answer:"可以，请加用户群提需求。"
+  },
+  {
     question: "DatabaseID和Integration Token我为啥绑定不上啊？",
     answer: "请再次确认ID和Token。Token是以screct_开头的50长度的字符串，token是32长度的字符串。如果是已经存在的DB，请保证列名和类型的正确性（见下个问题），不过非常建议创建一个新的Database专门用于Notion助手。"
   },

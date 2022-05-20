@@ -30,7 +30,7 @@ type IUserData = {
 cloud.init()
 const _ = cloud.database().command
 
-const debugUrl = false && "ws://localhost:9222/devtools/browser/50c34651-398b-4104-9c6d-0e6537c122a1"
+const debugUrl = "ws://localhost:9222/devtools/browser/5768af6e-ee8d-40db-9b17-837d4f8397ea"
 
 const sleep = (ms: number) => {
   return new Promise(resolve => setTimeout(resolve, ms))
@@ -254,6 +254,7 @@ export async function main(evt: IEvent): Promise<CloudRes<{} | undefined>> {
   }
   const { page, closeBrowser } = await openPage(url, adaptor)
   const parsedRes = await parse(page, type).finally(closeBrowser)
+  console.log(parsedRes.articleBody)
   if (type === "getBasicInfo") {
     return {
       errMsg: "ok",

@@ -6,7 +6,7 @@ export class DoubanNoteAdaptor implements IArticleAdaptor {
   platform = '豆瓣笔记'
 
   isMatch(url: string) {
-    return /www\.douban\.com\/note/.test(url)
+    return /douban\.com\/note/.test(url)
   }
 
   authorName() {
