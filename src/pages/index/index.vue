@@ -10,26 +10,36 @@ import roadmap from '../../assets/roadmap.png';
 import copy from '../../assets/copy.png';
 import question from '../../assets/question.png';
 import batchSave from '../../assets/batch-save.png';
-
-import { navigateTo } from '@tarojs/taro';
-import styles from './index.module.less';
 import logo from '../../assets/notion_logo.png';
-import { useShareTimeline, getStorageSync, setStorageSync } from '@tarojs/taro';
+import { getStorageSync, navigateTo } from '@tarojs/taro';
+import styles from './index.module.less';
+import { useShareTimeline, setStorageSync, useShareAppMessage } from '@tarojs/taro';
 import { ref } from 'vue';
 import { useGlobal } from '../../stores/global';
+import ScrollableContent from '../../components/ScrollableContent.vue';
+import SupportPlatforms from './components/SupportPlatforms/index.vue';
+import { OfficialAccount } from '@tarojs/components'
+
+const globalStore = useGlobal()
+const showDot = ref(false);
 
 useShareTimeline(() => {
   return {
     title: 'Notion助手-帮你收藏公众号文章到Notion',
     path: '/pages/index/index',
-    imageUrl: 'https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/basicprofile.png?sign=fe61a2c6304e5e48acc4766e15144f46&t=1648961942'
+    imageUrl: globalStore.globalConfig.shareTimelineImageUrl
   }
 })
 
-const globalStore = useGlobal()
-const showDot = ref(false);
-const version = getStorageSync("version")
-if (!version || version !== globalStore.version) {
+useShareAppMessage(() => {
+  return {
+    title: 'Notion助手-帮你收藏公众号文章到Notion',
+    path: '/pages/index/index',
+    imageUrl: globalStore.globalConfig.shareAppMessageImageUrl
+  }
+})
+
+if (globalStore.version !== getStorageSync("version")) {
   showDot.value = true
 }
 
@@ -39,24 +49,11 @@ const handleClickDot = () => {
 }
 
 </script>
-<script lang="ts">
-export default {
-  onShareAppMessage(res) {
-    if (res.from === 'button') {
-      // 来自页面内转发按钮
-      console.log(res.target)
-    }
-    return {
-      title: 'Notion助手-帮你收藏公众号文章到Notion',
-      path: '/pages/index/index',
-      imageUrl: 'https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/default.png?sign=4a721519b94eb7f923fdb7d3dcb92789&t=1648963127'
-    }
-  }
-}
-</script>
+
 <template>
-  <div class="flex flex-col" style="min-height: 100vh;">
-    <Header>Notion助手</Header>
+  <Header>Notion助手</Header>
+  <ScrollableContent>
+    <OfficialAccount />
     <Card>
       <div :class="styles.wrapper">
         <img :src="logo" :class="styles.img" />
@@ -69,15 +66,12 @@ export default {
       <MenuItem :icon="batchSave" name="批量保存" @click="navigateTo({ url: '/pages/batchSave/index' })" />
       <MenuItem :icon="user" name="信息绑定" @click="navigateTo({ url: '/pages/user/index' })" />
       <MenuItem :icon="question" name="常见问题" @click="navigateTo({ url: '/pages/questions/index' })" />
-      <MenuItem :icon="feedback" name="问题反馈 & 加入用户群" @click="navigateTo({ url: '/pages/feedback/index' })" />
+      <MenuItem :icon="feedback" name="主页 & 反馈 & 用户群" @click="navigateTo({ url: '/pages/feedback/index' })" />
       <MenuItem :icon="roadmap" name="更新日志" @click="handleClickDot(), navigateTo({ url: '/pages/roadmap/index' })"
         :dot="showDot" />
     </Menu>
-
-    <Card>
-      <official-account />
-    </Card>
-    <div class="text-xs text-gray text-center mt-auto pb-4">Version {{ globalStore.version }} | Copyright 2022 @Island
+    <SupportPlatforms />
+    <div class="text-xs text-gray text-center mt-auto pb-1">Version {{ globalStore.version }} | Copyright 2022 @Island
       All Rights Reserved.</div>
-  </div>
+  </ScrollableContent>
 </template>

@@ -11,6 +11,3 @@ withDefaults(defineProps<{ type?: "green" | "blue" | "gray" }>(), {
     <slot></slot>
   </div>
 </template>
-
-<style scoped lang="less">
-</style>

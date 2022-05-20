@@ -18,6 +18,3 @@ const props = defineProps<{ icon: string; name: string; dot?: boolean }>();
     </div>
   </div>
 </template>
-
-<style scoped lang="less">
-</style>

@@ -1,18 +1,10 @@
-<script lang="ts" setup>
-import styles from './index.module.less';
-</script>
-
 <template>
-<div :class="styles.container">
-  <div :class="styles.question">
-    <slot name="question"></slot>
+  <div class="my-1">
+    <div class="font-bold pb-1">
+      <slot name="question"></slot>
+    </div>
+    <div style="text-indent:2em">
+      <slot name="answer"></slot>
+    </div>
   </div>
-  <div :class="styles.answer">
-    <slot name="answer"></slot>
-  </div>
-</div>
 </template>
-
-<style scoped lang="less">
-
-</style>

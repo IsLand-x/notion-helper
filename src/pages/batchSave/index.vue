@@ -3,67 +3,58 @@ import Header from '../../components/Header/index.vue';
 import Card from '../../components/Card/index.vue';
 import STextarea from '../../components/STextarea/index.vue';
 import FadeTransition from '../../components/FadeTransition.vue';
+import ScrollableContent from '../../components/ScrollableContent.vue';
 import SButton from '../../components/SButton/index.vue';
-import SaveSingle from './components/SaveSingle/index.vue';
-
+import SaveArticle from '../../components/SaveArticle/index.vue';
 import { showToast } from '@tarojs/taro';
-
 import { ref } from 'vue';
-import { useCapsule } from '../../stores/capsule';
+import { useGlobal } from '../../stores/global';
 
 const rawUrls = ref('');
 const urls = ref<string[]>([])
-const capsuleStore = useCapsule();
+const globalConfig = useGlobal().globalConfig
 
-const handleRawValueChange = (e) => {
+const handleChange = (e: string) => {
   rawUrls.value = e
 }
 
-const handleClickSave = () => {
+const handleSave = () => {
   if (rawUrls.value === '') {
     showToast({ icon: 'none', title: '请填写内容' })
     return;
   }
-  const isWechatUrl = url => typeof url === 'string' && url.trim().includes("mp.weixin.qq.com");
+  const isSupportedUrl = (url: string) => {
+    for (const supportPlatform of globalConfig.supportPlatforms) {
+      if (new RegExp(supportPlatform.url).test(url)) {
+        return true
+      }
+    }
+    return false
+  }
   const result: string[] = []
   const tempRes = rawUrls.value.split("\n")
   for (const mayBeUrl of tempRes) {
-    if (isWechatUrl(mayBeUrl)) {
+    if (isSupportedUrl(mayBeUrl)) {
       result.push(mayBeUrl.trim())
     }
   }
   urls.value = result
 }
-
-
 </script>
 
 <template>
-  <div>
-    <Header can-go-back>批量保存</Header>
-    <scroll-view
-      scroll-y="true"
-      :style="{ height: `calc(100vh - ${capsuleStore.navigationBarHeight + capsuleStore.statusBarHeight}px)` }"
-    >
-      <FadeTransition>
-        <div v-if="urls.length === 0" style="animationDuration: 0.5s">
-          <Card>
-            <div class="p-2">
-              <STextarea @change="handleRawValueChange" placeholder="请粘贴文章链接，一行一个" label="文章链接" />
-            </div>
-          </Card>
-          <SButton class="mx-2" @click="handleClickSave">批量保存</SButton>
-        </div>
-        <div style="animationDuration: 0.5s" v-else>
-          <SaveSingle v-for="url of urls" :url="url" :key="url"/>
-        </div>
-      </FadeTransition>
-      <Card>
-        <official-account/>
-      </Card>
-    </scroll-view>
-  </div>
+  <Header can-go-back>批量保存</Header>
+  <ScrollableContent>
+    <FadeTransition>
+      <div v-if="urls.length === 0" style="animationDuration: 0.5s">
+        <Card>
+          <STextarea @change="handleChange" placeholder="请粘贴文章链接，一行一个" label="文章链接" />
+        </Card>
+        <SButton class="mx-2" @click="handleSave">批量保存</SButton>
+      </div>
+      <div style="animationDuration: 0.5s" v-else>
+        <SaveArticle v-for="url of urls" :url="url" :key="url" />
+      </div>
+    </FadeTransition>
+  </ScrollableContent>
 </template>
-
-<style scoped lang="less">
-</style>

@@ -1,13 +1,5 @@
-<script lang="ts" setup>
-import Card from './Card/index.vue'
-
-</script>
-
 <template>
-  <Card>
-    <slot></slot>
-  </Card>
+  <div class="m-2 rounded bg-white shadow relative overflow-hidden">
+    <slot />
+  </div>
 </template>
-
-<style scoped lang="less">
-</style>

@@ -13,10 +13,7 @@ defineProps<{
       <Tag style="margin-right:10rpx;">version {{ version }} {{ date }}</Tag>
     </div>
     <div style="font-size: 24rpx;">
-      <slot></slot>
+      <slot />
     </div>
   </div>
 </template>
-
-<style scoped lang="less">
-</style>
