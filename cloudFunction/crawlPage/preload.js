@@ -4,6 +4,7 @@ var getText = (el) => {
   return ((_a = el.textContent) == null ? void 0 : _a.trim()) || "";
 };
 var isLegalNotionImgFormat = (url) => url ? /\.(png|jpg|jpeg|gif|tif|tiff|bmp|svg|heic)$/.test(url) : false;
+var sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // src/adaptor/mpAdaptor.ts
 var MpAdaptor = class {
@@ -16,11 +17,11 @@ var MpAdaptor = class {
     return /mp\.weixin\.qq\.com/.test(url);
   }
   authorName() {
-    const el = document.querySelector("#js_name");
+    const el = document.querySelector("#js_name") || document.querySelector("#profile_share2 .account_meta.js_go_profile");
     return getText(el);
   }
   articleName() {
-    const el = document.querySelector("#activity-name");
+    const el = document.querySelector("#activity-name") || document.querySelector("#js_video_page_title");
     return getText(el);
   }
   publishTime() {
@@ -30,7 +31,7 @@ var MpAdaptor = class {
   async bgImgUrl() {
     var _a;
     const url = (_a = document.head.querySelector('meta[property="og:image"]')) == null ? void 0 : _a.getAttribute("content");
-    return this.processImgUrl(url || void 0);
+    return url ? this.processImgUrl(url) : void 0;
   }
   processImgUrl(url) {
     return (url == null ? void 0 : url.split("?")[0].replace("http://", "https://")) + ".png";
@@ -113,7 +114,8 @@ var SspaiAdaptor = class {
     return getText(el);
   }
   articleName() {
-    const el = document.querySelector("#article-title");
+    const bgImgUrl = document.querySelector(".article-banner img");
+    const el = bgImgUrl ? document.querySelector("#article-title") : document.querySelector(".article-info .title");
     return getText(el);
   }
   publishTime() {
@@ -121,7 +123,7 @@ var SspaiAdaptor = class {
   }
   async bgImgUrl() {
     const el = document.querySelector(".article-banner img");
-    const url = el.src;
+    const url = el == null ? void 0 : el.src;
     return this.processImgUrl(url || void 0);
   }
   async processImgUrl(url) {
@@ -139,6 +141,137 @@ var SspaiAdaptor = class {
   }
 };
 var sspaiAdaptor_default = new SspaiAdaptor();
+
+// src/adaptor/segmentfaultAdaptor.ts
+var SegmentfaultAdaptor = class {
+  constructor() {
+    this.platform = "\u601D\u5426\u56FE\u6587";
+    this.contentSelector = "article.article";
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/segmentfault.svg";
+  }
+  isMatch(url) {
+    return /segmentfault\.com\/a/.test(url);
+  }
+  authorName() {
+    const el = document.querySelector("strong.align-self-center.font-size-14");
+    return getText(el);
+  }
+  articleName() {
+    const sliceIdx = document.title.lastIndexOf(" - SegmentFault \u601D\u5426");
+    return document.title.slice(0, sliceIdx);
+  }
+  publishTime() {
+    const el = document.querySelector("time");
+    return el.dateTime;
+  }
+  async bgImgUrl() {
+    return await void 0;
+  }
+  async processImgUrl(url) {
+    return isLegalNotionImgFormat(url) ? url : void 0;
+  }
+  extractImgSrc(x) {
+    const rawSrc = x.dataset.src;
+    return rawSrc.startsWith("/") ? "https://segmentfault.com" + rawSrc : rawSrc;
+  }
+  forbidRequest(url) {
+    return ["google", "/img/remote", "umi.js", "umi.css"].some((x) => url.includes(x));
+  }
+  shouldSkip(x) {
+    return false;
+  }
+};
+var segmentfaultAdaptor_default = new SegmentfaultAdaptor();
+
+// src/adaptor/toutiaoAdaptor.ts
+var ToutiaoAdaptor = class {
+  constructor() {
+    this.platform = "\u4ECA\u65E5\u5934\u6761\u56FE\u6587";
+    this.contentSelector = "article";
+    this.cookie = [{
+      name: "ttwid",
+      value: "test",
+      domain: ".toutiao.com"
+    }];
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/jinritoutiao.svg?sign=1113c9c86cc3973d1d22d6843d837c50&t=1653492964";
+  }
+  isMatch(url) {
+    return /toutiao\.com/.test(url);
+  }
+  authorName() {
+    const el = document.querySelector(".article-meta .name a");
+    return getText(el);
+  }
+  articleName() {
+    const el = document.querySelector(".article-content h1");
+    return getText(el);
+  }
+  publishTime() {
+    const el = document.querySelector(".article-meta span:not([class])");
+    return getText(el);
+  }
+  async bgImgUrl() {
+    return void 0;
+  }
+  async processImgUrl(url) {
+    const prefix = url == null ? void 0 : url.split("?")[0].replace("http://", "https://");
+    return !url ? void 0 : isLegalNotionImgFormat(prefix + ".png") ? prefix + ".png" : void 0;
+  }
+  extractImgSrc(x) {
+    return x.src;
+  }
+  shouldSkip(x) {
+    return false;
+  }
+  forbidRequest(url) {
+    return [".map", "toutiaoimg", "captcha", "xgplayer", ".css", "snssdk", "sentry", "acrawler", "secsdk", "slardar"].some((x) => url.includes(x));
+  }
+};
+var toutiaoAdaptor_default = new ToutiaoAdaptor();
+
+// src/adaptor/xueqiuPostAdaptor.ts
+var XueqiuPostAdaptor = class {
+  constructor() {
+    this.platform = "\u96EA\u7403\u70ED\u5E16";
+    this.contentSelector = ".article__bd__detail";
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/xueqiu.svg?sign=58aebc0906f405381a2dd04013c9a333&t=1653820234";
+  }
+  isMatch(url) {
+    return /xueqiu\.com\/[0-9]+\/[0-9]+/.test(url);
+  }
+  authorName() {
+    const el = document.querySelector(".article__bd__from a") || document.querySelector(".avatar__name .name");
+    return getText(el);
+  }
+  articleName() {
+    return window.document.title;
+  }
+  publishTime() {
+    return void 0;
+  }
+  async bgImgUrl() {
+    return void 0;
+  }
+  async processImgUrl(url) {
+    return isLegalNotionImgFormat(url) ? url : void 0;
+  }
+  extractImgSrc(x) {
+    return x.src;
+  }
+  shouldSkip(x) {
+    return false;
+  }
+  forbidRequest(url) {
+    return [
+      "assets.imedao.com",
+      "xqimg.imedao.com",
+      "hm.baidu.com",
+      "xqdoc.imedao.com",
+      "xavatar.imedao.com"
+    ].some((x) => url.includes(x));
+  }
+};
+var xueqiuPostAdaptor_default = new XueqiuPostAdaptor();
 
 // src/adaptor/zhihuPostAdaptor.ts
 var ZhihuPostAdaptor = class {
@@ -224,47 +357,6 @@ var ZhihuPostAdaptor2 = class {
 };
 var zhihuAnswerAdaptor_default = new ZhihuPostAdaptor2();
 
-// src/adaptor/segmentfaultAdaptor.ts
-var SegmentfaultAdaptor = class {
-  constructor() {
-    this.platform = "\u601D\u5426\u56FE\u6587";
-    this.contentSelector = "article.article";
-    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/segmentfault.svg";
-  }
-  isMatch(url) {
-    return /segmentfault\.com\/a/.test(url);
-  }
-  authorName() {
-    const el = document.querySelector("strong.align-self-center.font-size-14");
-    return getText(el);
-  }
-  articleName() {
-    const sliceIdx = document.title.lastIndexOf(" - SegmentFault \u601D\u5426");
-    return document.title.slice(0, sliceIdx);
-  }
-  publishTime() {
-    const el = document.querySelector("time");
-    return el.dateTime;
-  }
-  async bgImgUrl() {
-    return await void 0;
-  }
-  async processImgUrl(url) {
-    return isLegalNotionImgFormat(url) ? url : void 0;
-  }
-  extractImgSrc(x) {
-    const rawSrc = x.dataset.src;
-    return rawSrc.startsWith("/") ? "https://segmentfault.com" + rawSrc : rawSrc;
-  }
-  forbidRequest(url) {
-    return ["google", "/img/remote", "umi.js", "umi.css"].some((x) => url.includes(x));
-  }
-  shouldSkip(x) {
-    return false;
-  }
-};
-var segmentfaultAdaptor_default = new SegmentfaultAdaptor();
-
 // src/adaptor/doubanNoteAdaptor.ts
 var DoubanNoteAdaptor = class {
   constructor() {
@@ -301,7 +393,7 @@ var DoubanNoteAdaptor = class {
     return false;
   }
   forbidRequest(url) {
-    return ["check_clean_content", "google"].some((x) => url.includes(x));
+    return ["check_content_clean", "check_clean_content", "google"].some((x) => url.includes(x));
   }
 };
 var doubanNoteAdaptor_default = new DoubanNoteAdaptor();
@@ -404,6 +496,213 @@ var DoubanAnnotationAdaptor = class extends DoubanNoteAdaptor {
 };
 var doubanAnnotationAdaptor_default = new DoubanAnnotationAdaptor();
 
+// src/adaptor/neteaseDesktopAdaptor.ts
+var NeteaseMobileAdaptor = class {
+  constructor() {
+    this.platform = "\u684C\u9762\u7AEF\u7F51\u6613\u65B0\u95FB";
+    this.contentSelector = ".post_body";
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/netease.png?sign=2a3f08b842bdf7379aa86cb595a2221f&t=1653792323";
+  }
+  isMatch(url) {
+    return /www\.163\.com/.test(url);
+  }
+  authorName() {
+    const el = document.querySelector(".post_info a:not([class])");
+    return getText(el);
+  }
+  articleName() {
+    const el = document.querySelector(".post_title");
+    return getText(el);
+  }
+  publishTime() {
+    const el = document.querySelector(".post_info");
+    return getText(el).trim().slice(0, 19);
+  }
+  async bgImgUrl() {
+    return void 0;
+  }
+  async processImgUrl(url) {
+    return isLegalNotionImgFormat(url) ? url : void 0;
+  }
+  extractImgSrc(x) {
+    return x.src;
+  }
+  shouldSkip(x) {
+    return false;
+  }
+  forbidRequest(url) {
+    return [
+      "bcebos.com",
+      "nimg.ws.126.net",
+      "baidustatic.com",
+      "acstatic-dun.126.net",
+      "urswebzj.nosdn.127.net",
+      "acstatic-dun.126.net",
+      "bdstatic.com"
+    ].some((x) => url.includes(x));
+  }
+};
+var neteaseDesktopAdaptor_default = new NeteaseMobileAdaptor();
+
+// src/adaptor/neteaseMobileAdaptor.ts
+var NeteaseMobileAdaptor2 = class {
+  constructor() {
+    this.platform = "\u79FB\u52A8\u7AEF\u7F51\u6613\u65B0\u95FB";
+    this.contentSelector = "article";
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/netease.png?sign=2a3f08b842bdf7379aa86cb595a2221f&t=1653792323";
+  }
+  isMatch(url) {
+    return /m\.163\.com/.test(url);
+  }
+  authorName() {
+    const el = document.querySelector(".header-subtitle-middle .s-source");
+    return getText(el);
+  }
+  articleName() {
+    const el = document.querySelector(".header-title");
+    return getText(el);
+  }
+  publishTime() {
+    const el = document.querySelector(".s-ptime");
+    return getText(el).trim().slice(0, 19);
+  }
+  async bgImgUrl() {
+    return void 0;
+  }
+  async processImgUrl(url) {
+    return isLegalNotionImgFormat(url) ? url : void 0;
+  }
+  extractImgSrc(x) {
+    var _a;
+    return (_a = x.parentElement) == null ? void 0 : _a.dataset.echo;
+  }
+  shouldSkip(x) {
+    return false;
+  }
+  forbidRequest(url) {
+    return [
+      "bcebos.com",
+      "ws.126.net",
+      "baidustatic.com",
+      "acstatic-dun.126.net",
+      "urswebzj.nosdn.127.net",
+      "acstatic-dun.126.net",
+      "bdstatic.com",
+      "toutiao.com",
+      "pstatp.com"
+    ].some((x) => url.includes(x));
+  }
+};
+var neteaseMobileAdaptor_default = new NeteaseMobileAdaptor2();
+
+// src/adaptor/qqChannelAdaptor.ts
+var QQChannelAdpator = class {
+  constructor() {
+    this.platform = "qq\u9891\u9053";
+    this.contentSelector = "#vue-editor-js";
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/qq.svg?sign=bdc4fd30f0329f51a79da91efdb27fc2&t=1653817336";
+  }
+  isMatch(url) {
+    return /qun\.qq\.com/.test(url);
+  }
+  authorName() {
+    const el = document.querySelector(".main-area__poster-info__detail__nicktext");
+    return getText(el);
+  }
+  articleName() {
+    const el = document.querySelector(".main-area__title span");
+    return getText(el);
+  }
+  publishTime() {
+    return new Date().toString();
+  }
+  async bgImgUrl() {
+    return void 0;
+  }
+  async processImgUrl(url) {
+    return isLegalNotionImgFormat(url) ? url : void 0;
+  }
+  extractImgSrc(x) {
+    return x.src;
+  }
+  shouldSkip(x) {
+    return false;
+  }
+  forbidRequest(url) {
+    return [
+      "qpic.cn",
+      "beacon.qq.com",
+      "framework.cdn-go.cn",
+      "myqcloud.com",
+      "idqqimg.com",
+      "gtimg.cn",
+      "trace.qq.com",
+      "qqweb.qq.com",
+      "file.myqcloud.com",
+      "data:",
+      "recommend.qq.com"
+    ].some((x) => url.includes(x));
+  }
+  async waitUntil() {
+    for (let i = 0; i < 5; i++) {
+      const app = document.querySelector("#app");
+      if (app == null ? void 0 : app.hasAttribute("v-data-app")) {
+        return;
+      }
+      await sleep(100);
+    }
+  }
+};
+var qqChannelAdaptor_default = new QQChannelAdpator();
+
+// src/adaptor/weiboMobileAdaptor.ts
+var QQChannelAdpator2 = class {
+  constructor() {
+    this.platform = "\u5FAE\u535A\u79FB\u52A8\u7AEF";
+    this.contentSelector = ".weibo-og";
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/weibo.svg?sign=c8d0e8d0d165437e0b88f92d16083059&t=1653824271";
+  }
+  isMatch(url) {
+    return /(m|api)\.weibo\.cn/.test(url);
+  }
+  authorName() {
+    const el = document.querySelector(".m-text-box b") || document.querySelector(".m-text-cut");
+    return getText(el);
+  }
+  articleName() {
+    const el = document.querySelector(".m-text-box b") || document.querySelector(".m-text-cut");
+    return getText(el) + "\u7684\u5FAE\u535A";
+  }
+  publishTime() {
+    return void 0;
+  }
+  async bgImgUrl() {
+    return void 0;
+  }
+  async processImgUrl(url) {
+    return isLegalNotionImgFormat(url) ? url : void 0;
+  }
+  extractImgSrc(x) {
+    return x.src;
+  }
+  shouldSkip(x) {
+    return false;
+  }
+  forbidRequest(url) {
+    return [
+      ".jpg",
+      ".png",
+      ".ttf",
+      ".woff",
+      "cards.css",
+      "base.css",
+      "baiduad",
+      "pos.baidu.com"
+    ].some((x) => url.includes(x));
+  }
+};
+var weiboMobileAdaptor_default = new QQChannelAdpator2();
+
 // src/adaptor/index.ts
 var adaptorArr = [
   mpAdaptor_default,
@@ -416,7 +715,13 @@ var adaptorArr = [
   doubanReviewAdaptor_default,
   doubanGroupAdaptor_default,
   doubanPeopleAdaptor_default,
-  doubanAnnotationAdaptor_default
+  doubanAnnotationAdaptor_default,
+  toutiaoAdaptor_default,
+  neteaseDesktopAdaptor_default,
+  neteaseMobileAdaptor_default,
+  qqChannelAdaptor_default,
+  xueqiuPostAdaptor_default,
+  weiboMobileAdaptor_default
 ];
 function getAdaptor(url) {
   for (const adaptor of adaptorArr) {
@@ -471,7 +776,7 @@ function isSpanElement(el) {
   return ["SPAN"].includes(el.tagName);
 }
 function shouldSkip(tag) {
-  return ["TEXTAREA", "STYLE", "SCRIPT", "NOSCRIPT"].includes(tag);
+  return ["TEXTAREA", "STYLE", "SCRIPT", "NOSCRIPT", "SOURCE"].includes(tag);
 }
 function isTextLevelSemanticsElement(x) {
   return [
@@ -509,6 +814,11 @@ function replaceChildren(container, childNodes) {
     container.appendChild(node);
   }
 }
+function replaceAttributes(to, from) {
+  for (const a of from.attributes) {
+    to.setAttribute(a.name, a.value);
+  }
+}
 async function convertBody() {
   const adaptor = window.adaptor;
   const content = document.querySelector(adaptor.contentSelector);
@@ -516,7 +826,7 @@ async function convertBody() {
     while (Array.from(el.children).length === 1 && Array.from(el.children[0].children).length !== 0) {
       el = el.children[0];
     }
-    return Array.from(el.children);
+    return Array.from(el.childNodes);
   };
   const parse = async (eleArr) => {
     const result = [];
@@ -556,6 +866,7 @@ async function convertBody() {
     } else {
       const p = document.createElement("p");
       replaceChildren(p, [...el.childNodes]);
+      replaceAttributes(p, el);
       return treatAsParagraph(p);
     }
   }
@@ -567,7 +878,7 @@ async function convertBody() {
       children.push(...await processTr(x));
     }
     async function processTr(tr) {
-      var _a, _b, _c;
+      var _a;
       const shouldBeTrOrTh = ((_a = tr.firstElementChild) == null ? void 0 : _a.tagName) === "TH" ? "th" : "td";
       const childElements = [...tr.children];
       for (let i = 0; i < childElements.length; i++) {
@@ -588,17 +899,21 @@ async function convertBody() {
       for (let i = 0; i < cells.length; i++) {
         const td = cells[i];
         const processed = await genNotionFormat(td);
-        children2.push(((_c = (_b = processed[0]) == null ? void 0 : _b.paragraph) == null ? void 0 : _c.rich_text) || [{
-          type: "text",
-          text: {
-            content: "Notion Table\u4E0D\u652F\u6301\u8BE5\u7C7B\u578BBlock\uFF0C\u526A\u85CF\u5931\u8D25",
-            link: null
-          }
-        }]);
+        const text = processed.map((c) => {
+          var _a2;
+          return ((_a2 = c == null ? void 0 : c.paragraph) == null ? void 0 : _a2.rich_text) || [{
+            type: "text",
+            text: {
+              content: "Notion Table\u4E0D\u652F\u6301\u8BE5\u7C7B\u578BBlock\uFF0C\u526A\u85CF\u5931\u8D25",
+              link: null
+            }
+          }];
+        }).flat();
+        children2.push(text);
         if (td.rowSpan >= 2) {
           let currentTr = tr;
           for (let j = 0; j < td.rowSpan - 1; j++) {
-            currentTr = tr.nextElementSibling || null;
+            currentTr = currentTr.nextElementSibling || null;
             if (!currentTr) {
               break;
             }
@@ -667,7 +982,7 @@ async function convertBody() {
   };
   const treatAsListItem = async (el) => {
     const [first = {}, ...rest] = await processInternal(el);
-    const children = rest.length !== 0 ? [...first.children || [], ...rest] : first.children || void 0;
+    const children = rest.length !== 0 ? [...first.children || [], ...rest] : first.children || [first];
     return [{
       type: "bulleted_list_item",
       bulleted_list_item: {
@@ -692,11 +1007,11 @@ async function convertBody() {
   };
   const treatAsImg = async (el) => {
     const rawSrc = adaptor.extractImgSrc(el);
-    const src = await adaptor.processImgUrl(rawSrc) || "";
-    if ((rawSrc == null ? void 0 : rawSrc.startsWith("data:")) || !src.startsWith("https://")) {
+    const src = await adaptor.processImgUrl(rawSrc);
+    if ((rawSrc == null ? void 0 : rawSrc.startsWith("data:")) || src && !(src == null ? void 0 : src.startsWith("https://"))) {
       return [];
     }
-    return !!src ? [{
+    const data = !!src ? [{
       type: "image",
       image: {
         type: "external",
@@ -710,6 +1025,7 @@ async function convertBody() {
         url: rawSrc
       }
     }] : [];
+    return data;
   };
   const treatAsQuote = async (el) => {
     if (isAllTextChildren(el)) {
@@ -725,6 +1041,7 @@ async function convertBody() {
         el = el.firstElementChild;
       }
       replaceChildren(p, [...el.childNodes]);
+      replaceAttributes(p, el);
       let [first, ...rest] = await genNotionFormat(p);
       let firstRichText = null;
       if (first.paragraph) {
@@ -754,6 +1071,9 @@ async function convertBody() {
     const result = [];
     let temp = document.createElement("p");
     for (const x of Array.from(el.childNodes)) {
+      if (isElementNode(x) && shouldSkip(x.tagName)) {
+        continue;
+      }
       if (isTextyNode(x)) {
         temp.appendChild(x);
       } else {
@@ -798,7 +1118,7 @@ async function convertBody() {
     if (isElementNode(el) && isCodeElement(el) && Array.from(el.childNodes).length !== 1) {
       return false;
     }
-    const result = isTextNode(el) || isElementNode(el) && (isSvgElement(el) || isTextLevelSemanticsElement(el.tagName) && Array.from(el.childNodes).every((child) => isTextyNode(child)));
+    const result = isTextNode(el) || isElementNode(el) && (shouldSkip(el.tagName) || isSvgElement(el) || isTextLevelSemanticsElement(el.tagName) && Array.from(el.childNodes).every((child) => isTextyNode(child)) || isImgElement(el) && el.dataset.formula !== void 0);
     return result;
   }
   const isAllTextChildren = (el) => {
@@ -830,7 +1150,7 @@ async function convertBody() {
             link: null
           }
         });
-      } else if (isElementNode(child) && isSpanElement(child) && child.dataset.formula) {
+      } else if (isElementNode(child) && (isSpanElement(child) && child.dataset.formula || isImgElement(child) && child.dataset.formula)) {
         result.push({
           type: "equation",
           equation: {

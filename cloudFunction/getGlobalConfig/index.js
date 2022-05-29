@@ -2,7 +2,7 @@ const cloud = require('wx-server-sdk')
 
 cloud.init()
 
-const addGroupImageUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/20220519.jpg?sign=bfecba8e09bc0716e1defa58eebf8ddc&t=1652963919"
+const addGroupImageUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/20220524.jpg?sign=e03fc30ee748e3a6df3cf3a424bfd3b5&t=1653367728"
 const wxGzhImageUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/output-onlinepngtools-min.png?sign=8c0c06d8e95bf94909cf5951f447007e&t=1652858230"
 const questions = require("./questions.js")
 const roadmaps = require("./roadmaps.js")

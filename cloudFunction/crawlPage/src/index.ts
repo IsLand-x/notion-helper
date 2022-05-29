@@ -30,7 +30,7 @@ type IUserData = {
 cloud.init()
 const _ = cloud.database().command
 
-const debugUrl = "ws://localhost:9222/devtools/browser/5768af6e-ee8d-40db-9b17-837d4f8397ea"
+const debugUrl = false && "ws://localhost:9222/devtools/browser/2da2dee7-ad3b-4bb8-aacd-34f97b365d91"
 
 const sleep = (ms: number) => {
   return new Promise(resolve => setTimeout(resolve, ms))
@@ -52,9 +52,11 @@ async function openPage(url: string, adaptor: IArticleAdaptor) {
     }
   }))
   await page.setBypassCSP(true)
+  await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36 Edg/101.0.1210.53');
+  await page.setCookie(...(adaptor.cookie || []))
   await page.goto(url)
-  await sleep(300)
   await page.addScriptTag({ path: './preload.js' })
+  await sleep(100)
   const closeBrowser = () => !debugUrl && browser.close()
   return { page, closeBrowser }
 }
@@ -66,18 +68,11 @@ async function saveToNotion(res: ParsedRes, user: IUserData, adaptor: IArticleAd
   console.log("AuthorName", authorName)
   console.log("PublishTime", publishTime)
   console.log("BgImgUrl", bgImgUrl)
-  console.log(publishTime)
   const { db, key } = user
   console.log("Db", db)
   console.log("Key", key)
   const notion = new Client({ auth: key })
-  console.log(bgImgUrl ? {
-    type: 'external',
-    external: {
-      url: bgImgUrl
-    }
-  } : null)
-  let response = await notion.pages.create({
+  const requestPayload = {
     parent: {
       type: "database_id",
       database_id: db
@@ -105,7 +100,7 @@ async function saveToNotion(res: ParsedRes, user: IUserData, adaptor: IArticleAd
       Href: {
         url,
       },
-      Date: {
+      Date: publishTime === undefined ? undefined : {
         date: {
           // @ts-ignore
           start: new Date(+new Date(publishTime) + 8 * 3600 * 1000).toISOString().slice(0, -1) + '+08:00'
@@ -127,61 +122,24 @@ async function saveToNotion(res: ParsedRes, user: IUserData, adaptor: IArticleAd
     },
     // @ts-ignore
     children: articleBody
-  }).catch(e => {
+  }
+  let response = await notion.pages.create(requestPayload as any).catch(e => {
     console.error(e)
     console.log(articleBody)
     return e
   }) as any
+  if (debugUrl) {
+    console.log(articleBody)
+  }
   if (response.code === 'validation_error') {
-    response = await notion.pages.create({
-      parent: {
-        type: "database_id",
-        database_id: db
-      },
-      icon: {
-        type: "external",
-        external: {
-          url: adaptor.iconUrl
-        }
-      },
-      cover: bgImgUrl ? {
-        type: 'external',
-        external: {
-          url: bgImgUrl
-        }
-      } : null,
-      properties: {
-        Name: {
-          title: [{
-            text: {
-              content: `[仅链接]` + articleName
-            },
-          },],
+    requestPayload.properties.Name = {
+      title: [{
+        text: {
+          content: `[仅链接]` + articleName
         },
-        Href: {
-          url,
-        },
-        Date: {
-          date: {
-            // @ts-ignore
-            start: new Date(+new Date(publishTime) + 8 * 3600 * 1000).toISOString().slice(0, -1) + '+08:00'
-          }
-        },
-        'Add Date': {
-          date: {
-            start: new Date(+new Date() + 8 * 3600 * 1000).toISOString().slice(0, -1) + '+08:00'
-          }
-        },
-        Author: {
-          rich_text: [{
-            type: 'text',
-            text: {
-              content: authorName
-            },
-          }]
-        }
-      },
-    }).catch(e => {
+      },],
+    }
+    response = await notion.pages.create(requestPayload as any).catch(e => {
       console.error(e)
       return e
     })
@@ -205,7 +163,7 @@ async function saveToNotion(res: ParsedRes, user: IUserData, adaptor: IArticleAd
       errMsg: 'Database ID错误或未引入integration,请重新绑定以修复。'
     }
   }
-  return { errMsg: 'ok' }
+  return { errMsg: res.errMsg ? res.errMsg + ',但成功保存链接到Notion' : 'ok' }
 }
 
 async function getUserData(): Promise<null | IUserData> {
@@ -254,7 +212,6 @@ export async function main(evt: IEvent): Promise<CloudRes<{} | undefined>> {
   }
   const { page, closeBrowser } = await openPage(url, adaptor)
   const parsedRes = await parse(page, type).finally(closeBrowser)
-  console.log(parsedRes.articleBody)
   if (type === "getBasicInfo") {
     return {
       errMsg: "ok",

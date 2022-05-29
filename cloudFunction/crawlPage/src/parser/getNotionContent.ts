@@ -55,7 +55,7 @@ function isSpanElement(el: Element): el is HTMLSpanElement {
 }
 
 function shouldSkip(tag: string) {
-  return ["TEXTAREA", "STYLE", "SCRIPT", "NOSCRIPT"].includes(tag)
+  return ["TEXTAREA", "STYLE", "SCRIPT", "NOSCRIPT", "SOURCE"].includes(tag)
 }
 
 function isTextLevelSemanticsElement(x: string) {
@@ -78,6 +78,12 @@ function replaceChildren(container: Element, childNodes: Node[]) {
   }
 }
 
+function replaceAttributes(to: Element, from: Element) {
+  for (const a of from.attributes) {
+    to.setAttribute(a.name, a.value)
+  }
+}
+
 export async function convertBody() {
   const adaptor = window.adaptor
   const content = document.querySelector(adaptor.contentSelector)
@@ -88,9 +94,9 @@ export async function convertBody() {
     ) {
       el = el.children[0]
     }
-    return Array.from(el.children)
+    return Array.from(el.childNodes)
   }
-  const parse = async (eleArr: Element[]) => {
+  const parse = async (eleArr: Node[]) => {
     const result = []
     for (const ele of eleArr) {
       const childArr = await genNotionFormat(ele);
@@ -136,6 +142,7 @@ export async function convertBody() {
     } else {
       const p = document.createElement("p")
       replaceChildren(p, [...el.childNodes])
+      replaceAttributes(p, el)
       return treatAsParagraph(p)
     }
   }
@@ -168,17 +175,20 @@ export async function convertBody() {
       for (let i = 0; i < cells.length; i++) {
         const td = cells[i]
         const processed = await genNotionFormat(td)
-        children.push(processed[0]?.paragraph?.rich_text || [{
-          type: 'text',
-          text: {
-            content: 'Notion Table不支持该类型Block，剪藏失败',
-            link: null
-          }
-        }])
+        const text = processed.map(c => {
+          return c?.paragraph?.rich_text || [{
+            type: 'text',
+            text: {
+              content: 'Notion Table不支持该类型Block，剪藏失败',
+              link: null
+            }
+          }]
+        }).flat()
+        children.push(text)
         if (td.rowSpan >= 2) {
           let currentTr = tr;
           for (let j = 0; j < td.rowSpan - 1; j++) {
-            currentTr = tr.nextElementSibling as HTMLTableRowElement || null;
+            currentTr = currentTr.nextElementSibling as HTMLTableRowElement || null;
             if (!currentTr) {
               break;
             }
@@ -254,7 +264,7 @@ export async function convertBody() {
   const treatAsListItem = async (el: HTMLLIElement) => {
     const [first = {}, ...rest] = await processInternal(el)
     const children = rest.length !== 0 ? [...(first.children || []), ...rest] :
-      (first.children || undefined)
+      (first.children || [first])
     return [{
       type: "bulleted_list_item",
       bulleted_list_item: {
@@ -279,11 +289,11 @@ export async function convertBody() {
   }
   const treatAsImg = async (el: HTMLImageElement) => {
     const rawSrc = adaptor.extractImgSrc(el)
-    const src = await adaptor.processImgUrl(rawSrc!) || ""
-    if (rawSrc?.startsWith("data:") || !src.startsWith("https://")) {
+    const src = await adaptor.processImgUrl(rawSrc!)
+    if (rawSrc?.startsWith("data:") || src && (!src?.startsWith("https://"))) {
       return []
     }
-    return !!src ? [{
+    const data = !!src ? [{
       type: 'image',
       image: {
         type: 'external',
@@ -297,6 +307,7 @@ export async function convertBody() {
         url: rawSrc
       }
     }] : []
+    return data
   }
   const treatAsQuote = async (el: HTMLQuoteElement) => {
     if (isAllTextChildren(el)) {
@@ -312,6 +323,7 @@ export async function convertBody() {
         el = el.firstElementChild as HTMLQuoteElement
       }
       replaceChildren(p, [...el.childNodes])
+      replaceAttributes(p, el)
       let [first, ...rest] = await genNotionFormat(p)
       let firstRichText = null
       if (first.paragraph) {
@@ -341,6 +353,9 @@ export async function convertBody() {
     const result = []
     let temp = document.createElement("p")
     for (const x of Array.from(el.childNodes)) {
+      if (isElementNode(x) && shouldSkip(x.tagName)) {
+        continue
+      }
       if (isTextyNode(x)) {
         temp.appendChild(x)
       } else {
@@ -395,10 +410,14 @@ export async function convertBody() {
       (
         isElementNode(el) &&
         (
+          shouldSkip(el.tagName) ||
           isSvgElement(el) ||
-          (isTextLevelSemanticsElement(el.tagName)) && Array
-            .from(el.childNodes)
-            .every(child => isTextyNode(child))
+          (
+            isTextLevelSemanticsElement(el.tagName)) && Array
+              .from(el.childNodes)
+              .every(child => isTextyNode(child)
+              ) ||
+          isImgElement(el) && el.dataset.formula !== undefined
         )
       )
     )
@@ -433,7 +452,12 @@ export async function convertBody() {
             link: null
           }
         })
-      } else if (isElementNode(child) && isSpanElement(child) && child.dataset.formula) {
+      } else if (
+        isElementNode(child) && (
+          isSpanElement(child) && child.dataset.formula ||
+          isImgElement(child) && child.dataset.formula
+        )
+      ) {
         result.push({
           type: "equation",
           equation: {

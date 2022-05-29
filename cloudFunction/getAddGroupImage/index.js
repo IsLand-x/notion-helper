@@ -9,6 +9,6 @@ exports.main = async (event, context) => {
 
     return {
         errMsg: "ok",
-        data:"https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/20220519.jpg?sign=bfecba8e09bc0716e1defa58eebf8ddc&t=1652963919"
+        data:"https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/20220524.jpg?sign=e03fc30ee748e3a6df3cf3a424bfd3b5&t=1653367728"
     }
 }

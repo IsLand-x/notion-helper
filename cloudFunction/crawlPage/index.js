@@ -33,6 +33,7 @@ var getText = (el) => {
   return ((_a = el.textContent) == null ? void 0 : _a.trim()) || "";
 };
 var isLegalNotionImgFormat = (url) => url ? /\.(png|jpg|jpeg|gif|tif|tiff|bmp|svg|heic)$/.test(url) : false;
+var sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // src/adaptor/mpAdaptor.ts
 var MpAdaptor = class {
@@ -45,11 +46,11 @@ var MpAdaptor = class {
     return /mp\.weixin\.qq\.com/.test(url);
   }
   authorName() {
-    const el = document.querySelector("#js_name");
+    const el = document.querySelector("#js_name") || document.querySelector("#profile_share2 .account_meta.js_go_profile");
     return getText(el);
   }
   articleName() {
-    const el = document.querySelector("#activity-name");
+    const el = document.querySelector("#activity-name") || document.querySelector("#js_video_page_title");
     return getText(el);
   }
   publishTime() {
@@ -59,7 +60,7 @@ var MpAdaptor = class {
   async bgImgUrl() {
     var _a;
     const url = (_a = document.head.querySelector('meta[property="og:image"]')) == null ? void 0 : _a.getAttribute("content");
-    return this.processImgUrl(url || void 0);
+    return url ? this.processImgUrl(url) : void 0;
   }
   processImgUrl(url) {
     return (url == null ? void 0 : url.split("?")[0].replace("http://", "https://")) + ".png";
@@ -142,7 +143,8 @@ var SspaiAdaptor = class {
     return getText(el);
   }
   articleName() {
-    const el = document.querySelector("#article-title");
+    const bgImgUrl = document.querySelector(".article-banner img");
+    const el = bgImgUrl ? document.querySelector("#article-title") : document.querySelector(".article-info .title");
     return getText(el);
   }
   publishTime() {
@@ -150,7 +152,7 @@ var SspaiAdaptor = class {
   }
   async bgImgUrl() {
     const el = document.querySelector(".article-banner img");
-    const url = el.src;
+    const url = el == null ? void 0 : el.src;
     return this.processImgUrl(url || void 0);
   }
   async processImgUrl(url) {
@@ -168,6 +170,137 @@ var SspaiAdaptor = class {
   }
 };
 var sspaiAdaptor_default = new SspaiAdaptor();
+
+// src/adaptor/segmentfaultAdaptor.ts
+var SegmentfaultAdaptor = class {
+  constructor() {
+    this.platform = "\u601D\u5426\u56FE\u6587";
+    this.contentSelector = "article.article";
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/segmentfault.svg";
+  }
+  isMatch(url) {
+    return /segmentfault\.com\/a/.test(url);
+  }
+  authorName() {
+    const el = document.querySelector("strong.align-self-center.font-size-14");
+    return getText(el);
+  }
+  articleName() {
+    const sliceIdx = document.title.lastIndexOf(" - SegmentFault \u601D\u5426");
+    return document.title.slice(0, sliceIdx);
+  }
+  publishTime() {
+    const el = document.querySelector("time");
+    return el.dateTime;
+  }
+  async bgImgUrl() {
+    return await void 0;
+  }
+  async processImgUrl(url) {
+    return isLegalNotionImgFormat(url) ? url : void 0;
+  }
+  extractImgSrc(x) {
+    const rawSrc = x.dataset.src;
+    return rawSrc.startsWith("/") ? "https://segmentfault.com" + rawSrc : rawSrc;
+  }
+  forbidRequest(url) {
+    return ["google", "/img/remote", "umi.js", "umi.css"].some((x) => url.includes(x));
+  }
+  shouldSkip(x) {
+    return false;
+  }
+};
+var segmentfaultAdaptor_default = new SegmentfaultAdaptor();
+
+// src/adaptor/toutiaoAdaptor.ts
+var ToutiaoAdaptor = class {
+  constructor() {
+    this.platform = "\u4ECA\u65E5\u5934\u6761\u56FE\u6587";
+    this.contentSelector = "article";
+    this.cookie = [{
+      name: "ttwid",
+      value: "test",
+      domain: ".toutiao.com"
+    }];
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/jinritoutiao.svg?sign=1113c9c86cc3973d1d22d6843d837c50&t=1653492964";
+  }
+  isMatch(url) {
+    return /toutiao\.com/.test(url);
+  }
+  authorName() {
+    const el = document.querySelector(".article-meta .name a");
+    return getText(el);
+  }
+  articleName() {
+    const el = document.querySelector(".article-content h1");
+    return getText(el);
+  }
+  publishTime() {
+    const el = document.querySelector(".article-meta span:not([class])");
+    return getText(el);
+  }
+  async bgImgUrl() {
+    return void 0;
+  }
+  async processImgUrl(url) {
+    const prefix = url == null ? void 0 : url.split("?")[0].replace("http://", "https://");
+    return !url ? void 0 : isLegalNotionImgFormat(prefix + ".png") ? prefix + ".png" : void 0;
+  }
+  extractImgSrc(x) {
+    return x.src;
+  }
+  shouldSkip(x) {
+    return false;
+  }
+  forbidRequest(url) {
+    return [".map", "toutiaoimg", "captcha", "xgplayer", ".css", "snssdk", "sentry", "acrawler", "secsdk", "slardar"].some((x) => url.includes(x));
+  }
+};
+var toutiaoAdaptor_default = new ToutiaoAdaptor();
+
+// src/adaptor/xueqiuPostAdaptor.ts
+var XueqiuPostAdaptor = class {
+  constructor() {
+    this.platform = "\u96EA\u7403\u70ED\u5E16";
+    this.contentSelector = ".article__bd__detail";
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/xueqiu.svg?sign=58aebc0906f405381a2dd04013c9a333&t=1653820234";
+  }
+  isMatch(url) {
+    return /xueqiu\.com\/[0-9]+\/[0-9]+/.test(url);
+  }
+  authorName() {
+    const el = document.querySelector(".article__bd__from a") || document.querySelector(".avatar__name .name");
+    return getText(el);
+  }
+  articleName() {
+    return window.document.title;
+  }
+  publishTime() {
+    return void 0;
+  }
+  async bgImgUrl() {
+    return void 0;
+  }
+  async processImgUrl(url) {
+    return isLegalNotionImgFormat(url) ? url : void 0;
+  }
+  extractImgSrc(x) {
+    return x.src;
+  }
+  shouldSkip(x) {
+    return false;
+  }
+  forbidRequest(url) {
+    return [
+      "assets.imedao.com",
+      "xqimg.imedao.com",
+      "hm.baidu.com",
+      "xqdoc.imedao.com",
+      "xavatar.imedao.com"
+    ].some((x) => url.includes(x));
+  }
+};
+var xueqiuPostAdaptor_default = new XueqiuPostAdaptor();
 
 // src/adaptor/zhihuPostAdaptor.ts
 var ZhihuPostAdaptor = class {
@@ -253,47 +386,6 @@ var ZhihuPostAdaptor2 = class {
 };
 var zhihuAnswerAdaptor_default = new ZhihuPostAdaptor2();
 
-// src/adaptor/segmentfaultAdaptor.ts
-var SegmentfaultAdaptor = class {
-  constructor() {
-    this.platform = "\u601D\u5426\u56FE\u6587";
-    this.contentSelector = "article.article";
-    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/segmentfault.svg";
-  }
-  isMatch(url) {
-    return /segmentfault\.com\/a/.test(url);
-  }
-  authorName() {
-    const el = document.querySelector("strong.align-self-center.font-size-14");
-    return getText(el);
-  }
-  articleName() {
-    const sliceIdx = document.title.lastIndexOf(" - SegmentFault \u601D\u5426");
-    return document.title.slice(0, sliceIdx);
-  }
-  publishTime() {
-    const el = document.querySelector("time");
-    return el.dateTime;
-  }
-  async bgImgUrl() {
-    return await void 0;
-  }
-  async processImgUrl(url) {
-    return isLegalNotionImgFormat(url) ? url : void 0;
-  }
-  extractImgSrc(x) {
-    const rawSrc = x.dataset.src;
-    return rawSrc.startsWith("/") ? "https://segmentfault.com" + rawSrc : rawSrc;
-  }
-  forbidRequest(url) {
-    return ["google", "/img/remote", "umi.js", "umi.css"].some((x) => url.includes(x));
-  }
-  shouldSkip(x) {
-    return false;
-  }
-};
-var segmentfaultAdaptor_default = new SegmentfaultAdaptor();
-
 // src/adaptor/doubanNoteAdaptor.ts
 var DoubanNoteAdaptor = class {
   constructor() {
@@ -330,7 +422,7 @@ var DoubanNoteAdaptor = class {
     return false;
   }
   forbidRequest(url) {
-    return ["check_clean_content", "google"].some((x) => url.includes(x));
+    return ["check_content_clean", "check_clean_content", "google"].some((x) => url.includes(x));
   }
 };
 var doubanNoteAdaptor_default = new DoubanNoteAdaptor();
@@ -433,6 +525,213 @@ var DoubanAnnotationAdaptor = class extends DoubanNoteAdaptor {
 };
 var doubanAnnotationAdaptor_default = new DoubanAnnotationAdaptor();
 
+// src/adaptor/neteaseDesktopAdaptor.ts
+var NeteaseMobileAdaptor = class {
+  constructor() {
+    this.platform = "\u684C\u9762\u7AEF\u7F51\u6613\u65B0\u95FB";
+    this.contentSelector = ".post_body";
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/netease.png?sign=2a3f08b842bdf7379aa86cb595a2221f&t=1653792323";
+  }
+  isMatch(url) {
+    return /www\.163\.com/.test(url);
+  }
+  authorName() {
+    const el = document.querySelector(".post_info a:not([class])");
+    return getText(el);
+  }
+  articleName() {
+    const el = document.querySelector(".post_title");
+    return getText(el);
+  }
+  publishTime() {
+    const el = document.querySelector(".post_info");
+    return getText(el).trim().slice(0, 19);
+  }
+  async bgImgUrl() {
+    return void 0;
+  }
+  async processImgUrl(url) {
+    return isLegalNotionImgFormat(url) ? url : void 0;
+  }
+  extractImgSrc(x) {
+    return x.src;
+  }
+  shouldSkip(x) {
+    return false;
+  }
+  forbidRequest(url) {
+    return [
+      "bcebos.com",
+      "nimg.ws.126.net",
+      "baidustatic.com",
+      "acstatic-dun.126.net",
+      "urswebzj.nosdn.127.net",
+      "acstatic-dun.126.net",
+      "bdstatic.com"
+    ].some((x) => url.includes(x));
+  }
+};
+var neteaseDesktopAdaptor_default = new NeteaseMobileAdaptor();
+
+// src/adaptor/neteaseMobileAdaptor.ts
+var NeteaseMobileAdaptor2 = class {
+  constructor() {
+    this.platform = "\u79FB\u52A8\u7AEF\u7F51\u6613\u65B0\u95FB";
+    this.contentSelector = "article";
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/netease.png?sign=2a3f08b842bdf7379aa86cb595a2221f&t=1653792323";
+  }
+  isMatch(url) {
+    return /m\.163\.com/.test(url);
+  }
+  authorName() {
+    const el = document.querySelector(".header-subtitle-middle .s-source");
+    return getText(el);
+  }
+  articleName() {
+    const el = document.querySelector(".header-title");
+    return getText(el);
+  }
+  publishTime() {
+    const el = document.querySelector(".s-ptime");
+    return getText(el).trim().slice(0, 19);
+  }
+  async bgImgUrl() {
+    return void 0;
+  }
+  async processImgUrl(url) {
+    return isLegalNotionImgFormat(url) ? url : void 0;
+  }
+  extractImgSrc(x) {
+    var _a;
+    return (_a = x.parentElement) == null ? void 0 : _a.dataset.echo;
+  }
+  shouldSkip(x) {
+    return false;
+  }
+  forbidRequest(url) {
+    return [
+      "bcebos.com",
+      "ws.126.net",
+      "baidustatic.com",
+      "acstatic-dun.126.net",
+      "urswebzj.nosdn.127.net",
+      "acstatic-dun.126.net",
+      "bdstatic.com",
+      "toutiao.com",
+      "pstatp.com"
+    ].some((x) => url.includes(x));
+  }
+};
+var neteaseMobileAdaptor_default = new NeteaseMobileAdaptor2();
+
+// src/adaptor/qqChannelAdaptor.ts
+var QQChannelAdpator = class {
+  constructor() {
+    this.platform = "qq\u9891\u9053";
+    this.contentSelector = "#vue-editor-js";
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/qq.svg?sign=bdc4fd30f0329f51a79da91efdb27fc2&t=1653817336";
+  }
+  isMatch(url) {
+    return /qun\.qq\.com/.test(url);
+  }
+  authorName() {
+    const el = document.querySelector(".main-area__poster-info__detail__nicktext");
+    return getText(el);
+  }
+  articleName() {
+    const el = document.querySelector(".main-area__title span");
+    return getText(el);
+  }
+  publishTime() {
+    return new Date().toString();
+  }
+  async bgImgUrl() {
+    return void 0;
+  }
+  async processImgUrl(url) {
+    return isLegalNotionImgFormat(url) ? url : void 0;
+  }
+  extractImgSrc(x) {
+    return x.src;
+  }
+  shouldSkip(x) {
+    return false;
+  }
+  forbidRequest(url) {
+    return [
+      "qpic.cn",
+      "beacon.qq.com",
+      "framework.cdn-go.cn",
+      "myqcloud.com",
+      "idqqimg.com",
+      "gtimg.cn",
+      "trace.qq.com",
+      "qqweb.qq.com",
+      "file.myqcloud.com",
+      "data:",
+      "recommend.qq.com"
+    ].some((x) => url.includes(x));
+  }
+  async waitUntil() {
+    for (let i = 0; i < 5; i++) {
+      const app = document.querySelector("#app");
+      if (app == null ? void 0 : app.hasAttribute("v-data-app")) {
+        return;
+      }
+      await sleep(100);
+    }
+  }
+};
+var qqChannelAdaptor_default = new QQChannelAdpator();
+
+// src/adaptor/weiboMobileAdaptor.ts
+var QQChannelAdpator2 = class {
+  constructor() {
+    this.platform = "\u5FAE\u535A\u79FB\u52A8\u7AEF";
+    this.contentSelector = ".weibo-og";
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/weibo.svg?sign=c8d0e8d0d165437e0b88f92d16083059&t=1653824271";
+  }
+  isMatch(url) {
+    return /(m|api)\.weibo\.cn/.test(url);
+  }
+  authorName() {
+    const el = document.querySelector(".m-text-box b") || document.querySelector(".m-text-cut");
+    return getText(el);
+  }
+  articleName() {
+    const el = document.querySelector(".m-text-box b") || document.querySelector(".m-text-cut");
+    return getText(el) + "\u7684\u5FAE\u535A";
+  }
+  publishTime() {
+    return void 0;
+  }
+  async bgImgUrl() {
+    return void 0;
+  }
+  async processImgUrl(url) {
+    return isLegalNotionImgFormat(url) ? url : void 0;
+  }
+  extractImgSrc(x) {
+    return x.src;
+  }
+  shouldSkip(x) {
+    return false;
+  }
+  forbidRequest(url) {
+    return [
+      ".jpg",
+      ".png",
+      ".ttf",
+      ".woff",
+      "cards.css",
+      "base.css",
+      "baiduad",
+      "pos.baidu.com"
+    ].some((x) => url.includes(x));
+  }
+};
+var weiboMobileAdaptor_default = new QQChannelAdpator2();
+
 // src/adaptor/index.ts
 var adaptorArr = [
   mpAdaptor_default,
@@ -445,7 +744,13 @@ var adaptorArr = [
   doubanReviewAdaptor_default,
   doubanGroupAdaptor_default,
   doubanPeopleAdaptor_default,
-  doubanAnnotationAdaptor_default
+  doubanAnnotationAdaptor_default,
+  toutiaoAdaptor_default,
+  neteaseDesktopAdaptor_default,
+  neteaseMobileAdaptor_default,
+  qqChannelAdaptor_default,
+  xueqiuPostAdaptor_default,
+  weiboMobileAdaptor_default
 ];
 function getAdaptor(url) {
   for (const adaptor of adaptorArr) {
@@ -458,11 +763,36 @@ function getAdaptor(url) {
 
 // src/parser/index.ts
 async function parse(page, type) {
-  const getArticleBody = () => type === "save" && page.evaluate(() => window.convertBody());
-  const getArticleName = () => page.evaluate(() => window.adaptor.articleName());
-  const getAuthorName = () => page.evaluate(() => window.adaptor.authorName());
-  const getPublishTime = () => type === "save" && page.evaluate(() => window.adaptor.publishTime());
-  const getBgImgUrl = () => type === "save" && page.evaluate(() => window.adaptor.bgImgUrl());
+  let errMsg = [];
+  await page.evaluate(async () => {
+    var _a, _b;
+    await ((_b = (_a = window.adaptor).waitUntil) == null ? void 0 : _b.call(_a));
+  });
+  const getArticleBody = () => type === "save" && page.evaluate(() => window.convertBody()).catch((e) => {
+    errMsg.push("\u6587\u7AE0\u5185\u5BB9\u63D0\u53D6\u5931\u8D25");
+    console.log(e);
+    return void 0;
+  });
+  const getArticleName = () => page.evaluate(() => window.adaptor.articleName()).catch((e) => {
+    errMsg.push("\u6587\u7AE0\u6807\u9898\u63D0\u53D6\u5931\u8D25");
+    console.log(e);
+    return "\u6587\u7AE0\u6807\u9898\u63D0\u53D6\u5931\u8D25";
+  });
+  const getAuthorName = () => page.evaluate(() => window.adaptor.authorName()).catch((e) => {
+    errMsg.push("\u4F5C\u8005\u540D\u79F0\u63D0\u53D6\u5931\u8D25");
+    console.log(e);
+    return "\u4F5C\u8005\u540D\u79F0\u63D0\u53D6\u5931\u8D25";
+  });
+  const getPublishTime = () => type === "save" && page.evaluate(() => window.adaptor.publishTime()).catch((e) => {
+    errMsg.push("\u53D1\u5E03\u65E5\u671F\u63D0\u53D6\u5931\u8D25");
+    console.log(e);
+    return new Date();
+  });
+  const getBgImgUrl = () => type === "save" && page.evaluate(() => window.adaptor.bgImgUrl()).catch((e) => {
+    errMsg.push("\u80CC\u666F\u56FE\u63D0\u53D6\u5931\u8D25");
+    console.log(e);
+    return void 0;
+  });
   const getUrl = () => page.url();
   const [
     articleName,
@@ -485,7 +815,8 @@ async function parse(page, type) {
     publishTime,
     bgImgUrl,
     articleBody,
-    url
+    url,
+    errMsg: errMsg.join(",")
   };
 }
 
@@ -494,8 +825,8 @@ var import_puppeteer = __toESM(require("puppeteer"));
 var import_client = require("@notionhq/client");
 import_wx_server_sdk.default.init();
 var _ = import_wx_server_sdk.default.database().command;
-var debugUrl = "ws://localhost:9222/devtools/browser/5768af6e-ee8d-40db-9b17-837d4f8397ea";
-var sleep = (ms) => {
+var debugUrl = false;
+var sleep7 = (ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
 async function openPage(url, adaptor) {
@@ -515,9 +846,11 @@ async function openPage(url, adaptor) {
     }
   });
   await page.setBypassCSP(true);
+  await page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36 Edg/101.0.1210.53");
+  await page.setCookie(...adaptor.cookie || []);
   await page.goto(url);
-  await sleep(300);
   await page.addScriptTag({ path: "./preload.js" });
+  await sleep7(100);
   const closeBrowser = () => !debugUrl && browser.close();
   return { page, closeBrowser };
 }
@@ -528,18 +861,11 @@ async function saveToNotion(res, user, adaptor) {
   console.log("AuthorName", authorName);
   console.log("PublishTime", publishTime);
   console.log("BgImgUrl", bgImgUrl);
-  console.log(publishTime);
   const { db, key } = user;
   console.log("Db", db);
   console.log("Key", key);
   const notion = new import_client.Client({ auth: key });
-  console.log(bgImgUrl ? {
-    type: "external",
-    external: {
-      url: bgImgUrl
-    }
-  } : null);
-  let response = await notion.pages.create({
+  const requestPayload = {
     parent: {
       type: "database_id",
       database_id: db
@@ -567,7 +893,7 @@ async function saveToNotion(res, user, adaptor) {
       Href: {
         url
       },
-      Date: {
+      Date: publishTime === void 0 ? void 0 : {
         date: {
           start: new Date(+new Date(publishTime) + 8 * 3600 * 1e3).toISOString().slice(0, -1) + "+08:00"
         }
@@ -587,60 +913,24 @@ async function saveToNotion(res, user, adaptor) {
       }
     },
     children: articleBody
-  }).catch((e) => {
+  };
+  let response = await notion.pages.create(requestPayload).catch((e) => {
     console.error(e);
     console.log(articleBody);
     return e;
   });
+  if (debugUrl) {
+    console.log(articleBody);
+  }
   if (response.code === "validation_error") {
-    response = await notion.pages.create({
-      parent: {
-        type: "database_id",
-        database_id: db
-      },
-      icon: {
-        type: "external",
-        external: {
-          url: adaptor.iconUrl
+    requestPayload.properties.Name = {
+      title: [{
+        text: {
+          content: `[\u4EC5\u94FE\u63A5]` + articleName
         }
-      },
-      cover: bgImgUrl ? {
-        type: "external",
-        external: {
-          url: bgImgUrl
-        }
-      } : null,
-      properties: {
-        Name: {
-          title: [{
-            text: {
-              content: `[\u4EC5\u94FE\u63A5]` + articleName
-            }
-          }]
-        },
-        Href: {
-          url
-        },
-        Date: {
-          date: {
-            start: new Date(+new Date(publishTime) + 8 * 3600 * 1e3).toISOString().slice(0, -1) + "+08:00"
-          }
-        },
-        "Add Date": {
-          date: {
-            start: new Date(+new Date() + 8 * 3600 * 1e3).toISOString().slice(0, -1) + "+08:00"
-          }
-        },
-        Author: {
-          rich_text: [{
-            type: "text",
-            text: {
-              content: authorName
-            }
-          }]
-        }
-      }
-    }).catch((e) => {
+      }]
+    };
+    response = await notion.pages.create(requestPayload).catch((e) => {
       console.error(e);
       return e;
     });
@@ -664,7 +954,7 @@ async function saveToNotion(res, user, adaptor) {
       errMsg: "Database ID\u9519\u8BEF\u6216\u672A\u5F15\u5165integration,\u8BF7\u91CD\u65B0\u7ED1\u5B9A\u4EE5\u4FEE\u590D\u3002"
     };
   }
-  return { errMsg: "ok" };
+  return { errMsg: res.errMsg ? res.errMsg + ",\u4F46\u6210\u529F\u4FDD\u5B58\u94FE\u63A5\u5230Notion" : "ok" };
 }
 async function getUserData() {
   const { OPENID } = import_wx_server_sdk.default.getWXContext();
@@ -702,7 +992,6 @@ async function main(evt) {
   }
   const { page, closeBrowser } = await openPage(url, adaptor);
   const parsedRes = await parse(page, type).finally(closeBrowser);
-  console.log(parsedRes.articleBody);
   if (type === "getBasicInfo") {
     return {
       errMsg: "ok",

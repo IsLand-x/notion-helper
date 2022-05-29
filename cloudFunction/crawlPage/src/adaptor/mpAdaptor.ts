@@ -10,12 +10,12 @@ class MpAdaptor implements IArticleAdaptor {
   }
 
   authorName() {
-    const el = document.querySelector("#js_name")
+    const el = document.querySelector("#js_name") || document.querySelector("#profile_share2 .account_meta.js_go_profile")
     return getText(el!)
   }
 
   articleName() {
-    const el = document.querySelector("#activity-name")
+    const el = document.querySelector("#activity-name") || document.querySelector("#js_video_page_title")
     return getText(el!)
   }
 
@@ -26,7 +26,7 @@ class MpAdaptor implements IArticleAdaptor {
 
   async bgImgUrl() {
     const url = document.head.querySelector('meta[property="og:image"]')?.getAttribute('content')
-    return this.processImgUrl(url || undefined)
+    return url ? this.processImgUrl(url) : undefined
   }
 
   processImgUrl(url?: string) {

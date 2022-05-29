@@ -15,7 +15,9 @@ class SspaiAdaptor implements IArticleAdaptor {
   }
 
   articleName() {
-    const el = document.querySelector("#article-title")
+    // 少数派有两种posts，对应不同的banner，articleName也不同
+    const bgImgUrl =  document.querySelector(".article-banner img");
+    const el = bgImgUrl ? document.querySelector("#article-title") : document.querySelector(".article-info .title")
     return getText(el!)
   }
 
@@ -25,7 +27,7 @@ class SspaiAdaptor implements IArticleAdaptor {
 
   async bgImgUrl() {
     const el = document.querySelector(".article-banner img")
-    const url = (el as HTMLImageElement).src
+    const url = (el as HTMLImageElement)?.src
     return this.processImgUrl(url || undefined)
   }
 

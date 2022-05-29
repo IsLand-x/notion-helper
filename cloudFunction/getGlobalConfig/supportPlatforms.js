@@ -32,5 +32,30 @@ module.exports = [{
     platform: '思否',
     url: 'segmentfault.com/a',
     image: 'cloud://cloud1-0gdb05jw5581957d.636c-cloud1-0gdb05jw5581957d-1310720469/platform-logo/segmentfault.svg'
+  },
+  {
+    platform: '今日头条',
+    url: 'toutiao.com/',
+    image: 'cloud://cloud1-0gdb05jw5581957d.636c-cloud1-0gdb05jw5581957d-1310720469/platform-logo/jinritoutiao.svg'
+  },
+  {
+    platform: '网易新闻',
+    url: '163.net',
+    image: 'cloud://cloud1-0gdb05jw5581957d.636c-cloud1-0gdb05jw5581957d-1310720469/platform-logo/netease.png'
+  },
+  {
+    platform: 'QQ频道',
+    url: 'qq.com',
+    image: 'cloud://cloud1-0gdb05jw5581957d.636c-cloud1-0gdb05jw5581957d-1310720469/platform-logo/qq.svg'
+  },
+  {
+    platform: '雪球热帖',
+    url: 'xueqiu.com',
+    image: 'cloud://cloud1-0gdb05jw5581957d.636c-cloud1-0gdb05jw5581957d-1310720469/platform-logo/xueqiu.svg'
+  },
+  {
+    platform: '微博',
+    url: 'weibo.cn',
+    image: 'cloud://cloud1-0gdb05jw5581957d.636c-cloud1-0gdb05jw5581957d-1310720469/platform-logo/weibo.svg'
   }
 ]

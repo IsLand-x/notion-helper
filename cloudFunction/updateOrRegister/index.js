@@ -40,7 +40,8 @@ exports.main = async (event, context) => {
                 data: [{
                     openid: OPENID,
                     key: event.key,
-                    db: event.db
+                    db: event.db,
+                    registerDate:new Date()
                 }]
             })
     } else {
@@ -50,7 +51,8 @@ exports.main = async (event, context) => {
             .update({
                 data: {
                     key: event.key,
-                    db: event.db
+                    db: event.db,
+                    updateDate:new Date()
                 }
             })
     }

@@ -48,7 +48,7 @@ export class DoubanNoteAdaptor implements IArticleAdaptor {
   }
 
   forbidRequest(url: string) {
-    return ["check_clean_content", "google"].some(x => url.includes(x))
+    return ["check_content_clean","check_clean_content", "google"].some(x => url.includes(x))
   }
 
   iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/douban.svg?sign=67b067b35836681cdd121444c0f57a13&t=1652853130"
