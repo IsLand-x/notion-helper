@@ -16,8 +16,8 @@
                     "name": "分享文章保存",
                     "pathName": "pages/saveArticle/index",
                     "query": "",
-                    "launchMode": "default",
                     "scene": 1173,
+                    "launchMode": "default",
                     "referrerInfo": {
                         "materials": [
                             {
@@ -54,8 +54,8 @@
                     "name": "文章保存页面",
                     "pathName": "pages/saveArticle/index",
                     "query": "",
-                    "scene": null,
-                    "launchMode": "default"
+                    "launchMode": "default",
+                    "scene": null
                 },
                 {
                     "name": "",

@@ -11,7 +11,7 @@ import copy from '../../assets/copy.png';
 import question from '../../assets/question.png';
 import batchSave from '../../assets/batch-save.png';
 import logo from '../../assets/notion_logo.png';
-import { getStorageSync, navigateTo } from '@tarojs/taro';
+import { getStorageSync, navigateTo, getClipboardData, showModal, useDidShow } from '@tarojs/taro';
 import styles from './index.module.less';
 import { useShareTimeline, setStorageSync, useShareAppMessage } from '@tarojs/taro';
 import { ref } from 'vue';
@@ -47,6 +47,43 @@ const handleClickDot = () => {
   setStorageSync("version", globalStore.version);
   showDot.value = false;
 }
+
+const ignoredUrl = []
+const shouldJump = async () => {
+  const { data, errMsg } = await getClipboardData()
+  console.log(data, errMsg)
+  if (data.includes("http")) {
+    const url = data.slice(data.indexOf('http'))
+    // @ts-ignore 微信新option
+    if (ignoredUrl.includes(url)) {
+      return
+    }
+    setTimeout(() => {
+      showModal({
+        title: '检测到网址，是否保存到Notion？',
+        content: url,
+        // @ts-ignore
+        editable: true,
+        success: async (res) => {
+          // @ts-ignore
+          ignoredUrl.push(url)
+          if (res.confirm) {
+            // @ts-ignore
+            navigateTo({ url: '/pages/saveArticle/index?url=' + res.content })
+          }
+        }
+      })
+    })
+  }
+}
+
+useDidShow(() => {
+  if (getStorageSync('fastSave')) {
+    setTimeout(shouldJump, 100)
+  }
+})
+
+
 
 </script>
 

@@ -55,6 +55,9 @@ async function openPage(url: string, adaptor: IArticleAdaptor) {
   await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36 Edg/101.0.1210.53');
   await page.setCookie(...(adaptor.cookie || []))
   await page.goto(url)
+  if (adaptor.waitNavigation) {
+    await page.waitForNavigation()
+  }
   await page.addScriptTag({ path: './preload.js' })
   await sleep(100)
   const closeBrowser = () => !debugUrl && browser.close()
@@ -77,12 +80,12 @@ async function saveToNotion(res: ParsedRes, user: IUserData, adaptor: IArticleAd
       type: "database_id",
       database_id: db
     },
-    icon: {
+    icon: adaptor.iconUrl !== '' ? {
       type: "external",
       external: {
         url: adaptor.iconUrl
       }
-    },
+    } : undefined,
     cover: bgImgUrl ? {
       type: 'external',
       external: {
@@ -139,6 +142,7 @@ async function saveToNotion(res: ParsedRes, user: IUserData, adaptor: IArticleAd
         },
       },],
     }
+    delete requestPayload.children;
     response = await notion.pages.create(requestPayload as any).catch(e => {
       console.error(e)
       return e
@@ -163,7 +167,14 @@ async function saveToNotion(res: ParsedRes, user: IUserData, adaptor: IArticleAd
       errMsg: 'Database ID错误或未引入integration,请重新绑定以修复。'
     }
   }
-  return { errMsg: res.errMsg ? res.errMsg + ',但成功保存链接到Notion' : 'ok' }
+  return {
+    errMsg:
+      adaptor.platform === '兜底'
+        ? '暂不支持该平台内容剪藏，但保存链接到Notion'
+        : res.errMsg
+          ? res.errMsg + ',但成功保存链接到Notion'
+          : 'ok'
+  }
 }
 
 async function getUserData(): Promise<null | IUserData> {
@@ -184,7 +195,8 @@ const tryAddCount = (openid: string) => {
     .where({ openid })
     .update({
       data: {
-        articleSaveCnt: _.inc(1)
+        articleSaveCnt: _.inc(1),
+        lastUseDate: new Date()
       }
     })
 }
@@ -198,19 +210,14 @@ export async function main(evt: IEvent): Promise<CloudRes<{} | undefined>> {
   console.log("Url:", url)
   const wxCtx = getWXContext()
   console.log(wxCtx)
-  const adaptor = getAdaptor(url)
-  if (!adaptor) {
-    return {
-      errMsg: '文章链接错误或暂不支持该平台'
-    }
-  }
   const userData = await getUserData()
   if (!userData) {
     return {
       errMsg: '请先根据教程绑定到Notion助手'
     }
   }
-  const { page, closeBrowser } = await openPage(url, adaptor)
+  const adaptor = getAdaptor(url)
+  const { page, closeBrowser } = await openPage(url, adaptor!)
   const parsedRes = await parse(page, type).finally(closeBrowser)
   if (type === "getBasicInfo") {
     return {
@@ -221,7 +228,7 @@ export async function main(evt: IEvent): Promise<CloudRes<{} | undefined>> {
       }
     }
   }
-  const res = await saveToNotion(parsedRes, userData, adaptor)
+  const res = await saveToNotion(parsedRes, userData, adaptor!)
   tryAddCount(userData.openid)
   return res
 }

@@ -58,6 +58,10 @@ function shouldSkip(tag: string) {
   return ["TEXTAREA", "STYLE", "SCRIPT", "NOSCRIPT", "SOURCE"].includes(tag)
 }
 
+function isAudioElement(el: Element): el is HTMLAudioElement {
+  return ["AUDIO"].includes(el.tagName)
+}
+
 function isTextLevelSemanticsElement(x: string) {
   return [
     "A", "EM", "STRONG", "CITE", "Q", "DFN",
@@ -86,7 +90,7 @@ function replaceAttributes(to: Element, from: Element) {
 
 export async function convertBody() {
   const adaptor = window.adaptor
-  const content = document.querySelector(adaptor.contentSelector)
+  const content = (await window.adaptor.getContent?.()) || document.querySelector(adaptor.contentSelector)
   const flatten = (el: Element) => {
     while (
       Array.from(el.children).length === 1 &&
@@ -139,12 +143,24 @@ export async function convertBody() {
       return treatAsCodeBlock(el)
     } else if (isTableElement(el)) {
       return treatAsTable(el)
+    } else if (isAudioElement(el)) {
+      return treatAsAudio(el)
     } else {
       const p = document.createElement("p")
       replaceChildren(p, [...el.childNodes])
       replaceAttributes(p, el)
       return treatAsParagraph(p)
     }
+  }
+  const treatAsAudio = async (el: HTMLAudioElement) => {
+    return el.src ? [
+      {
+        type: 'embed',
+        embed: {
+          url: el.src
+        }
+      }
+    ] : []
   }
   const treatAsTable = async (el: HTMLTableElement) => {
     const hasHeader = el.querySelector("thead") !== undefined;
@@ -264,7 +280,7 @@ export async function convertBody() {
   const treatAsListItem = async (el: HTMLLIElement) => {
     const [first = {}, ...rest] = await processInternal(el)
     const children = rest.length !== 0 ? [...(first.children || []), ...rest] :
-      (first.children || [first])
+      (first.children || [])
     return [{
       type: "bulleted_list_item",
       bulleted_list_item: {

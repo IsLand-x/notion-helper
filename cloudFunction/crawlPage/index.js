@@ -685,7 +685,7 @@ var QQChannelAdpator = class {
 var qqChannelAdaptor_default = new QQChannelAdpator();
 
 // src/adaptor/weiboMobileAdaptor.ts
-var QQChannelAdpator2 = class {
+var weiboMobileAdpator = class {
   constructor() {
     this.platform = "\u5FAE\u535A\u79FB\u52A8\u7AEF";
     this.contentSelector = ".weibo-og";
@@ -709,6 +709,7 @@ var QQChannelAdpator2 = class {
     return void 0;
   }
   async processImgUrl(url) {
+    url = url == null ? void 0 : url.replace("/orj360/", "/mw2000/");
     return isLegalNotionImgFormat(url) ? url : void 0;
   }
   extractImgSrc(x) {
@@ -730,7 +731,349 @@ var QQChannelAdpator2 = class {
     ].some((x) => url.includes(x));
   }
 };
-var weiboMobileAdaptor_default = new QQChannelAdpator2();
+var weiboMobileAdaptor_default = new weiboMobileAdpator();
+
+// src/adaptor/weiboDesktopAdaptor.ts
+var weiboDesktopAdpator = class {
+  constructor() {
+    this.platform = "\u5FAE\u535APC";
+    this.contentSelector = ".wbpro-feed-content";
+    this.waitNavigation = true;
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/weibo.svg?sign=c8d0e8d0d165437e0b88f92d16083059&t=1653824271";
+  }
+  isMatch(url) {
+    return /weibo\.com/.test(url);
+  }
+  authorName() {
+    const el = document.querySelector("a[class*='ALink_default'][class*='head_name']");
+    return getText(el);
+  }
+  articleName() {
+    const el = document.querySelector("a[class*='ALink_default'][class*='head_name']");
+    return getText(el) + "\u7684\u5FAE\u535A";
+  }
+  publishTime() {
+    return void 0;
+  }
+  async bgImgUrl() {
+    return void 0;
+  }
+  async processImgUrl(url) {
+    url = url == null ? void 0 : url.replace("/orj360/", "/mw2000/");
+    return isLegalNotionImgFormat(url) ? url : void 0;
+  }
+  extractImgSrc(x) {
+    return x.src;
+  }
+  shouldSkip(x) {
+    return false;
+  }
+  forbidRequest(url) {
+    return [
+      ".jpg",
+      ".png",
+      ".ttf",
+      ".woff",
+      "cards.css",
+      "base.css",
+      "baiduad",
+      "pos.baidu.com",
+      "weibo.cn/intake"
+    ].some((x) => url.includes(x));
+  }
+  async waitUntil() {
+    for (let i = 0; i < 5; i++) {
+      const app = document.querySelector("a[class*='ALink_default'][class*='head_name']");
+      if (app) {
+        return;
+      }
+      await sleep(1e3);
+    }
+    throw new Error("Time out");
+  }
+};
+var weiboDesktopAdaptor_default = new weiboDesktopAdpator();
+
+// src/adaptor/weiboDesktopToutiaoAdaptor.ts
+var weiboDesktopAdpator2 = class {
+  constructor() {
+    this.platform = "\u5FAE\u535APC\u5934\u6761";
+    this.contentSelector = ".f-art";
+    this.waitNavigation = false;
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/weibo.svg?sign=c8d0e8d0d165437e0b88f92d16083059&t=1653824271";
+  }
+  isMatch(url) {
+    return /weibo\.com\/ttarticle/.test(url);
+  }
+  authorName() {
+    const el = document.querySelector(".name.m-text-cut");
+    return getText(el);
+  }
+  articleName() {
+    const el = document.querySelector(".f-art-tit");
+    return getText(el);
+  }
+  publishTime() {
+    return void 0;
+  }
+  async bgImgUrl() {
+    return void 0;
+  }
+  async processImgUrl(url) {
+    url = url == null ? void 0 : url.replace("/orj360/", "/mw2000/");
+    return isLegalNotionImgFormat(url) ? url : void 0;
+  }
+  extractImgSrc(x) {
+    return x.src;
+  }
+  shouldSkip(x) {
+    return false;
+  }
+  forbidRequest(url) {
+    return [
+      ".jpg",
+      ".png",
+      ".ttf",
+      ".woff",
+      "cards.css",
+      "base.css",
+      "baiduad",
+      "pos.baidu.com",
+      "weibo.cn/intake",
+      "/ttarticle/x/m/aj/recommend"
+    ].some((x) => url.includes(x));
+  }
+  async waitUntil() {
+    for (let i = 0; i < 5; i++) {
+      const app = document.querySelector(".name.m-text-cut");
+      if (app) {
+        return;
+      }
+      console.log("waiting");
+      await sleep(1e3);
+    }
+    throw new Error("Time out");
+  }
+};
+var weiboDesktopToutiaoAdaptor_default = new weiboDesktopAdpator2();
+
+// src/adaptor/bilibiliVideoAdaptor.ts
+var bilibiliVideoAdaptor = class {
+  constructor() {
+    this.platform = "B\u7AD9\u89C6\u9891";
+    this.contentSelector = "";
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/bilibili.svg?sign=5ec53ed6636eb21bbcebb7fabcec97c5&t=1654839452";
+  }
+  isMatch(url) {
+    return /(b23\.tv)|(bilibili\.com)/.test(url);
+  }
+  authorName() {
+    const el = document.querySelector(".username");
+    return getText(el);
+  }
+  articleName() {
+    const el = document.querySelector(".video-title.tit");
+    return getText(el);
+  }
+  publishTime() {
+    const el = document.querySelector(".pudate.item");
+    return getText(el);
+  }
+  async bgImgUrl() {
+    return void 0;
+  }
+  async processImgUrl(url) {
+    return isLegalNotionImgFormat(url) ? url : void 0;
+  }
+  extractImgSrc(x) {
+    return x.src;
+  }
+  shouldSkip(x) {
+    return false;
+  }
+  forbidRequest(url) {
+    return [
+      ".css",
+      ".woff",
+      ".svg",
+      "bilivideo.com",
+      "data.bilibili.com"
+    ].some((x) => url.includes(x));
+  }
+  async customCrawlPageLogic() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const page = urlParams.get("p") || 1;
+    return [{
+      type: "embed",
+      embed: {
+        url: `https://player.bilibili.com/player.html?bvid=${window.bvid}&page=${page}`
+      }
+    }];
+  }
+};
+var bilibiliVideoAdaptor_default = new bilibiliVideoAdaptor();
+
+// src/adaptor/coolapkFeedAdaptor.ts
+var coolapkFeedAdaptor = class {
+  constructor() {
+    this.platform = "\u9177\u5B89feed";
+    this.contentSelector = "";
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/coolapk.svg?sign=afd08253f4e55d727e33548f066b3643&t=1654841991";
+  }
+  isMatch(url) {
+    return /www\.coolapk\.com\/feed/.test(url);
+  }
+  authorName() {
+    const el = document.querySelector(".username-item p");
+    return getText(el);
+  }
+  articleName() {
+    const el = document.querySelector(".message-title") || document.querySelector("title");
+    return getText(el);
+  }
+  publishTime() {
+    return void 0;
+  }
+  async bgImgUrl() {
+    return void 0;
+  }
+  async processImgUrl(url) {
+    return isLegalNotionImgFormat(url) ? url : void 0;
+  }
+  async getContent() {
+    const feedMessage = document.querySelector(".feed-message") || document.createComment("");
+    const messageImageGroup = document.querySelector(".message-image-group") || document.createComment("");
+    const container = document.createElement("div");
+    container.append(feedMessage);
+    container.append(messageImageGroup);
+    return container;
+  }
+  extractImgSrc(x) {
+    var _a;
+    return (_a = x.src) == null ? void 0 : _a.replace("http://", "https://");
+  }
+  shouldSkip(x) {
+    return false;
+  }
+  forbidRequest(url) {
+    return [
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".js",
+      ".css",
+      "data:image"
+    ].some((x) => url.includes(x));
+  }
+};
+var coolapkFeedAdaptor_default = new coolapkFeedAdaptor();
+
+// src/adaptor/xiaoyuzhoufmAdaptor.ts
+var xiaoyuzhoufmAdaptor = class {
+  constructor() {
+    this.platform = "\u5C0F\u5B87\u5B99fm";
+    this.contentSelector = "";
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/xiaoyuzhoufm.png?sign=dcf76227ef81f1ff9616e35a83b910ea&t=1654845878";
+  }
+  isMatch(url) {
+    return /www\.xiaoyuzhoufm\.com\/episode/.test(url);
+  }
+  authorName() {
+    const el = document.querySelector(".name");
+    return getText(el);
+  }
+  articleName() {
+    const el = document.querySelector("header .title") || document.querySelector("title");
+    return getText(el);
+  }
+  publishTime() {
+    return void 0;
+  }
+  async bgImgUrl() {
+    return void 0;
+  }
+  async processImgUrl(url) {
+    return isLegalNotionImgFormat(url) ? url : void 0;
+  }
+  async getContent() {
+    const audio = document.querySelector("audio") || document.createComment("");
+    const content = document.querySelector("article") || document.createComment("");
+    const container = document.createElement("div");
+    container.append(audio);
+    container.append(content);
+    return container;
+  }
+  extractImgSrc(x) {
+    var _a;
+    return (_a = x.src) == null ? void 0 : _a.replace("http://", "https://");
+  }
+  shouldSkip(x) {
+    return false;
+  }
+  forbidRequest(url) {
+    return [
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".css",
+      "image.xyzcdn.net"
+    ].some((x) => url.includes(x));
+  }
+};
+var xiaoyuzhoufmAdaptor_default = new xiaoyuzhoufmAdaptor();
+
+// src/adaptor/defaultAdaptor.ts
+var defaultAdaptor = class {
+  constructor() {
+    this.platform = "\u515C\u5E95";
+    this.contentSelector = "";
+    this.iconUrl = "";
+  }
+  isMatch(url) {
+    return true;
+  }
+  authorName() {
+    return "";
+  }
+  articleName() {
+    return document.title;
+  }
+  publishTime() {
+    return void 0;
+  }
+  async bgImgUrl() {
+    return void 0;
+  }
+  async processImgUrl(url) {
+    return isLegalNotionImgFormat(url) ? url : void 0;
+  }
+  extractImgSrc(x) {
+    return x.src;
+  }
+  shouldSkip(x) {
+    return false;
+  }
+  async getContent() {
+    const container = document.createElement("div");
+    return container;
+  }
+  forbidRequest(url) {
+    return [
+      ".css",
+      ".woff",
+      ".svg",
+      ".js",
+      "data:",
+      ".png",
+      ".svg",
+      ".jpeg",
+      ".jpg",
+      ".gif",
+      ".webp"
+    ].some((x) => url.includes(x));
+  }
+};
+var defaultAdaptor_default = new defaultAdaptor();
 
 // src/adaptor/index.ts
 var adaptorArr = [
@@ -750,7 +1093,13 @@ var adaptorArr = [
   neteaseMobileAdaptor_default,
   qqChannelAdaptor_default,
   xueqiuPostAdaptor_default,
-  weiboMobileAdaptor_default
+  weiboMobileAdaptor_default,
+  weiboDesktopToutiaoAdaptor_default,
+  weiboDesktopAdaptor_default,
+  bilibiliVideoAdaptor_default,
+  coolapkFeedAdaptor_default,
+  xiaoyuzhoufmAdaptor_default,
+  defaultAdaptor_default
 ];
 function getAdaptor(url) {
   for (const adaptor of adaptorArr) {
@@ -764,15 +1113,20 @@ function getAdaptor(url) {
 // src/parser/index.ts
 async function parse(page, type) {
   let errMsg = [];
+  console.log("waiting");
   await page.evaluate(async () => {
     var _a, _b;
     await ((_b = (_a = window.adaptor).waitUntil) == null ? void 0 : _b.call(_a));
   });
-  const getArticleBody = () => type === "save" && page.evaluate(() => window.convertBody()).catch((e) => {
+  console.log("start Crawling");
+  const getArticleBody = () => type === "save" ? page.evaluate(() => {
+    var _a, _b;
+    return ((_b = (_a = window.adaptor).customCrawlPageLogic) == null ? void 0 : _b.call(_a)) || window.convertBody();
+  }).catch((e) => {
     errMsg.push("\u6587\u7AE0\u5185\u5BB9\u63D0\u53D6\u5931\u8D25");
     console.log(e);
     return void 0;
-  });
+  }) : [];
   const getArticleName = () => page.evaluate(() => window.adaptor.articleName()).catch((e) => {
     errMsg.push("\u6587\u7AE0\u6807\u9898\u63D0\u53D6\u5931\u8D25");
     console.log(e);
@@ -849,6 +1203,9 @@ async function openPage(url, adaptor) {
   await page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36 Edg/101.0.1210.53");
   await page.setCookie(...adaptor.cookie || []);
   await page.goto(url);
+  if (adaptor.waitNavigation) {
+    await page.waitForNavigation();
+  }
   await page.addScriptTag({ path: "./preload.js" });
   await sleep7(100);
   const closeBrowser = () => !debugUrl && browser.close();
@@ -870,12 +1227,12 @@ async function saveToNotion(res, user, adaptor) {
       type: "database_id",
       database_id: db
     },
-    icon: {
+    icon: adaptor.iconUrl !== "" ? {
       type: "external",
       external: {
         url: adaptor.iconUrl
       }
-    },
+    } : void 0,
     cover: bgImgUrl ? {
       type: "external",
       external: {
@@ -930,6 +1287,7 @@ async function saveToNotion(res, user, adaptor) {
         }
       }]
     };
+    delete requestPayload.children;
     response = await notion.pages.create(requestPayload).catch((e) => {
       console.error(e);
       return e;
@@ -954,7 +1312,9 @@ async function saveToNotion(res, user, adaptor) {
       errMsg: "Database ID\u9519\u8BEF\u6216\u672A\u5F15\u5165integration,\u8BF7\u91CD\u65B0\u7ED1\u5B9A\u4EE5\u4FEE\u590D\u3002"
     };
   }
-  return { errMsg: res.errMsg ? res.errMsg + ",\u4F46\u6210\u529F\u4FDD\u5B58\u94FE\u63A5\u5230Notion" : "ok" };
+  return {
+    errMsg: adaptor.platform === "\u515C\u5E95" ? "\u6682\u4E0D\u652F\u6301\u8BE5\u5E73\u53F0\u5185\u5BB9\u526A\u85CF\uFF0C\u4F46\u4FDD\u5B58\u94FE\u63A5\u5230Notion" : res.errMsg ? res.errMsg + ",\u4F46\u6210\u529F\u4FDD\u5B58\u94FE\u63A5\u5230Notion" : "ok"
+  };
 }
 async function getUserData() {
   const { OPENID } = import_wx_server_sdk.default.getWXContext();
@@ -966,7 +1326,8 @@ async function getUserData() {
 var tryAddCount = (openid) => {
   import_wx_server_sdk.default.database().collection("user").where({ openid }).update({
     data: {
-      articleSaveCnt: _.inc(1)
+      articleSaveCnt: _.inc(1),
+      lastUseDate: new Date()
     }
   });
 };
@@ -978,18 +1339,13 @@ async function main(evt) {
   console.log("Url:", url);
   const wxCtx = (0, import_wx_server_sdk.getWXContext)();
   console.log(wxCtx);
-  const adaptor = getAdaptor(url);
-  if (!adaptor) {
-    return {
-      errMsg: "\u6587\u7AE0\u94FE\u63A5\u9519\u8BEF\u6216\u6682\u4E0D\u652F\u6301\u8BE5\u5E73\u53F0"
-    };
-  }
   const userData = await getUserData();
   if (!userData) {
     return {
       errMsg: "\u8BF7\u5148\u6839\u636E\u6559\u7A0B\u7ED1\u5B9A\u5230Notion\u52A9\u624B"
     };
   }
+  const adaptor = getAdaptor(url);
   const { page, closeBrowser } = await openPage(url, adaptor);
   const parsedRes = await parse(page, type).finally(closeBrowser);
   if (type === "getBasicInfo") {

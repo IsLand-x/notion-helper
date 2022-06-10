@@ -4,6 +4,7 @@ import { ref } from 'vue';
 import { TransitionPresets, useTransition } from '@vueuse/core';
 import styles from './index.module.less';
 import { callCloudFunction } from '../../utils/index'
+import useStore from './store'
 
 type ISaveSingle = {
   url: string;
@@ -76,7 +77,9 @@ const saveArticle = async () => {
   status.value = '保存成功'
   emit("statusChange", { isError: false, errMsg: "ok" })
 }
-saveArticle()
+
+const store = useStore()
+store.push(saveArticle)
 </script>
 
 <template>

@@ -8,11 +8,9 @@ import SButton from '../../components/SButton/index.vue';
 import SaveArticle from '../../components/SaveArticle/index.vue';
 import { showToast } from '@tarojs/taro';
 import { ref } from 'vue';
-import { useGlobal } from '../../stores/global';
 
 const rawUrls = ref('');
 const urls = ref<string[]>([])
-const globalConfig = useGlobal().globalConfig
 
 const handleChange = (e: string) => {
   rawUrls.value = e
@@ -23,18 +21,10 @@ const handleSave = () => {
     showToast({ icon: 'none', title: '请填写内容' })
     return;
   }
-  const isSupportedUrl = (url: string) => {
-    for (const supportPlatform of globalConfig.supportPlatforms) {
-      if (new RegExp(supportPlatform.url).test(url)) {
-        return true
-      }
-    }
-    return false
-  }
   const result: string[] = []
   const tempRes = rawUrls.value.split("\n")
   for (const mayBeUrl of tempRes) {
-    if (isSupportedUrl(mayBeUrl)) {
+    if (mayBeUrl.includes("http")) {
       result.push(mayBeUrl.trim())
     }
   }
@@ -53,7 +43,7 @@ const handleSave = () => {
         <SButton class="mx-2" @click="handleSave">批量保存</SButton>
       </div>
       <div style="animationDuration: 0.5s" v-else>
-        <SaveArticle v-for="url of urls" :url="url" :key="url" />
+        <SaveArticle v-for="(url, idx) of urls" :url="url" :key="url + idx" />
       </div>
     </FadeTransition>
   </ScrollableContent>

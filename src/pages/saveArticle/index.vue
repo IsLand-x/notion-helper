@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useDidShow, showToast, getEnterOptionsSync, getCurrentPages, useDidHide } from '@tarojs/taro';
+import { useDidShow, showToast, getEnterOptionsSync, getCurrentPages, useDidHide, getCurrentInstance, getStorageSync, setStorageSync } from '@tarojs/taro';
 import { ref } from 'vue';
 import Header from '../../components/Header/index.vue'
 import Card from '../../components/Card/index.vue';
@@ -7,10 +7,10 @@ import styles from './index.module.less'
 import logo from '../../assets/notion_logo.png';
 import SButton from '../../components/SButton/index.vue';
 import FadeTransition from '../../components/FadeTransition.vue';
-import { useGlobal } from '../../stores/global'
 import SInput from '../../components/Input/index.vue';
 import ScrollableContent from '../../components/ScrollableContent.vue';
 import SaveArticle from '../../components/SaveArticle/index.vue';
+import SSwitch from '../../components/Switch/index.vue';
 
 const url = ref('')
 const tempUrl = ref('');
@@ -20,8 +20,6 @@ const errMsg = ref('');
 
 // For Android only.
 const urlSavedArr = ref<string[]>([]);
-
-const globalStore = useGlobal()
 
 const resetStatus = () => {
   errMsg.value = ''
@@ -37,7 +35,8 @@ const handleSave = (articleUrl: string) => {
   const httpStartIdx = articleUrl.indexOf("http")
   articleUrl = articleUrl.slice(httpStartIdx)
   if (!articleUrl.trim().startsWith("http")) {
-    showToast({ title: '请检查URL是否合法' })
+    showToast({ icon: 'none', title: '请检查URL是否合法' })
+    return;
   }
   resetStatus()
   setTimeout(() => {
@@ -51,14 +50,13 @@ const handleStatusChange = (e: { isError: boolean; errMsg: string; }) => {
 }
 
 useDidShow(() => {
-  if (!['android', 'devtools'].includes(globalStore.platform)) {
-    return;
-  }
-  if (getCurrentPages().length > 1) {
+
+  const paramUrl = getCurrentInstance().router?.params.url
+  if (getCurrentPages().length > 1 && !paramUrl) {
     return;
   }
   const { forwardMaterials = [] } = getEnterOptionsSync();
-  const urlToSave = forwardMaterials[0]?.path || ''
+  const urlToSave = paramUrl || forwardMaterials[0]?.path
   // For android only.
   // To avoid unnecessary saving when binging mp back to front
   if (urlSavedArr.value.includes(urlToSave) || !urlToSave) {
@@ -70,6 +68,11 @@ useDidShow(() => {
 
 useDidHide(resetStatus)
 
+const fastSave = ref(getStorageSync('fastSave'))
+const handleFastSaveChange = (e) => {
+  fastSave.value = e;
+  setStorageSync('fastSave', e)
+}
 </script>
 
 <template>
@@ -88,13 +91,21 @@ useDidHide(resetStatus)
       <div style="animationDuration: 0.5s" v-if="url === ''">
         <Card>
           <SInput :model-value="tempUrl" @update:model-value="e => tempUrl = e" label="文章链接"
-            extra="若所填链接不以http开头，助手会自动截取http及其之后的所有字符作为文章链接" />
+            extra="若所填链接不以http开头，助手会自动截取http及其之后的所有字符作为文章链接" can-delete />
         </Card>
         <Card>
           <div>安卓用户也可以直接通过”公众号推送->右上角三个点->更多打开方式“中打开Notion助手，更方便地将文章保存到Notion。</div>
           <div>ios用户也可以暂时将文章链接复制到备忘录中，使用批量导入功能提高使用体验。</div>
         </Card>
         <SButton @click="handleSave(tempUrl)" class="mx-2">保 存</SButton>
+        <Card>
+          <SSwitch :model-value="fastSave" @update:model-value="handleFastSaveChange">快捷保存</SSwitch>
+          <div class="text-xs">
+            允许Notion助手在首页监听剪切板内容，若剪切板中含有网址，则自动弹出收藏提示。收藏完成之后请返回到首页。
+          </div>
+          <img style="height:600rpx;margin:10rpx;" mode="aspectFit"
+            src="cloud://cloud1-0gdb05jw5581957d.636c-cloud1-0gdb05jw5581957d-1310720469/fastSaveGif.gif" />
+        </Card>
       </div>
     </FadeTransition>
     <FadeTransition>

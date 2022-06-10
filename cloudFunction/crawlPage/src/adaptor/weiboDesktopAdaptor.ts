@@ -1,21 +1,21 @@
 import { IArticleAdaptor } from "./adaptor"
 import { getText, isLegalNotionImgFormat, sleep } from "./util"
 
-class weiboMobileAdpator implements IArticleAdaptor {
+class weiboDesktopAdpator implements IArticleAdaptor {
 
-  platform = '微博移动端'
+  platform = '微博PC'
 
   isMatch(url: string) {
-    return /(m|api)\.weibo\.cn/.test(url)
+    return /weibo\.com/.test(url)
   }
 
   authorName() {
-    const el = document.querySelector(".m-text-box b") || document.querySelector(".m-text-cut")
+    const el = document.querySelector("a[class*='ALink_default'][class*='head_name']")
     return getText(el!)
   }
 
   articleName() {
-    const el = document.querySelector(".m-text-box b") || document.querySelector(".m-text-cut")
+    const el = document.querySelector("a[class*='ALink_default'][class*='head_name']")
     return getText(el!) + '的微博'
   }
 
@@ -32,7 +32,7 @@ class weiboMobileAdpator implements IArticleAdaptor {
     return isLegalNotionImgFormat(url) ? url : undefined
   }
 
-  contentSelector = '.weibo-og'
+  contentSelector = '.wbpro-feed-content'
 
   extractImgSrc(x: HTMLImageElement) {
     return x.src
@@ -51,11 +51,25 @@ class weiboMobileAdpator implements IArticleAdaptor {
       'cards.css',
       'base.css',
       'baiduad',
-      'pos.baidu.com'
+      'pos.baidu.com',
+      'weibo.cn/intake'
     ].some(x => url.includes(x))
   }
+
+  async waitUntil() {
+    for (let i = 0; i < 5; i++) {
+      const app = document.querySelector("a[class*='ALink_default'][class*='head_name']")
+      if (app) {
+        return
+      }
+      await sleep(1000)
+    }
+    throw new Error("Time out")
+  }
+
+  waitNavigation = true
 
   iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/weibo.svg?sign=c8d0e8d0d165437e0b88f92d16083059&t=1653824271"
 }
 
-export default new weiboMobileAdpator()
+export default new weiboDesktopAdpator()

@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 import styles from './index.module.less'
+import deletePng from '../../assets/delete.png';
 
 type IInput = {
   modelValue: string;
@@ -8,6 +9,7 @@ type IInput = {
   placeholder?: string;
   extra?: string;
   onChangeCb?: (x: string) => string;
+  canDelete?: boolean
 }
 
 type IInputEmits = {
@@ -36,7 +38,12 @@ const internalValue = computed<string>({
 <template>
   <div :class="styles.wrapper">
     <div :class="styles.label">{{ label }}</div>
-    <input :class="styles.input" v-model="internalValue" :placeholder="placeholder" />
+    <div :class="styles.inputWrapper">
+      <input :class="styles.input" v-model="internalValue" :placeholder="placeholder" />
+      <div :class="styles.deleteWrapper" v-if="canDelete && internalValue" @click="internalValue = ''">
+        <img :src="deletePng" :class="styles.delete" />
+      </div>
+    </div>
     <div :class="styles.extra">{{ extra }}</div>
   </div>
 </template>

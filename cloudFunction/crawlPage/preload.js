@@ -656,7 +656,7 @@ var QQChannelAdpator = class {
 var qqChannelAdaptor_default = new QQChannelAdpator();
 
 // src/adaptor/weiboMobileAdaptor.ts
-var QQChannelAdpator2 = class {
+var weiboMobileAdpator = class {
   constructor() {
     this.platform = "\u5FAE\u535A\u79FB\u52A8\u7AEF";
     this.contentSelector = ".weibo-og";
@@ -680,6 +680,7 @@ var QQChannelAdpator2 = class {
     return void 0;
   }
   async processImgUrl(url) {
+    url = url == null ? void 0 : url.replace("/orj360/", "/mw2000/");
     return isLegalNotionImgFormat(url) ? url : void 0;
   }
   extractImgSrc(x) {
@@ -701,7 +702,349 @@ var QQChannelAdpator2 = class {
     ].some((x) => url.includes(x));
   }
 };
-var weiboMobileAdaptor_default = new QQChannelAdpator2();
+var weiboMobileAdaptor_default = new weiboMobileAdpator();
+
+// src/adaptor/weiboDesktopAdaptor.ts
+var weiboDesktopAdpator = class {
+  constructor() {
+    this.platform = "\u5FAE\u535APC";
+    this.contentSelector = ".wbpro-feed-content";
+    this.waitNavigation = true;
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/weibo.svg?sign=c8d0e8d0d165437e0b88f92d16083059&t=1653824271";
+  }
+  isMatch(url) {
+    return /weibo\.com/.test(url);
+  }
+  authorName() {
+    const el = document.querySelector("a[class*='ALink_default'][class*='head_name']");
+    return getText(el);
+  }
+  articleName() {
+    const el = document.querySelector("a[class*='ALink_default'][class*='head_name']");
+    return getText(el) + "\u7684\u5FAE\u535A";
+  }
+  publishTime() {
+    return void 0;
+  }
+  async bgImgUrl() {
+    return void 0;
+  }
+  async processImgUrl(url) {
+    url = url == null ? void 0 : url.replace("/orj360/", "/mw2000/");
+    return isLegalNotionImgFormat(url) ? url : void 0;
+  }
+  extractImgSrc(x) {
+    return x.src;
+  }
+  shouldSkip(x) {
+    return false;
+  }
+  forbidRequest(url) {
+    return [
+      ".jpg",
+      ".png",
+      ".ttf",
+      ".woff",
+      "cards.css",
+      "base.css",
+      "baiduad",
+      "pos.baidu.com",
+      "weibo.cn/intake"
+    ].some((x) => url.includes(x));
+  }
+  async waitUntil() {
+    for (let i = 0; i < 5; i++) {
+      const app = document.querySelector("a[class*='ALink_default'][class*='head_name']");
+      if (app) {
+        return;
+      }
+      await sleep(1e3);
+    }
+    throw new Error("Time out");
+  }
+};
+var weiboDesktopAdaptor_default = new weiboDesktopAdpator();
+
+// src/adaptor/weiboDesktopToutiaoAdaptor.ts
+var weiboDesktopAdpator2 = class {
+  constructor() {
+    this.platform = "\u5FAE\u535APC\u5934\u6761";
+    this.contentSelector = ".f-art";
+    this.waitNavigation = false;
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/weibo.svg?sign=c8d0e8d0d165437e0b88f92d16083059&t=1653824271";
+  }
+  isMatch(url) {
+    return /weibo\.com\/ttarticle/.test(url);
+  }
+  authorName() {
+    const el = document.querySelector(".name.m-text-cut");
+    return getText(el);
+  }
+  articleName() {
+    const el = document.querySelector(".f-art-tit");
+    return getText(el);
+  }
+  publishTime() {
+    return void 0;
+  }
+  async bgImgUrl() {
+    return void 0;
+  }
+  async processImgUrl(url) {
+    url = url == null ? void 0 : url.replace("/orj360/", "/mw2000/");
+    return isLegalNotionImgFormat(url) ? url : void 0;
+  }
+  extractImgSrc(x) {
+    return x.src;
+  }
+  shouldSkip(x) {
+    return false;
+  }
+  forbidRequest(url) {
+    return [
+      ".jpg",
+      ".png",
+      ".ttf",
+      ".woff",
+      "cards.css",
+      "base.css",
+      "baiduad",
+      "pos.baidu.com",
+      "weibo.cn/intake",
+      "/ttarticle/x/m/aj/recommend"
+    ].some((x) => url.includes(x));
+  }
+  async waitUntil() {
+    for (let i = 0; i < 5; i++) {
+      const app = document.querySelector(".name.m-text-cut");
+      if (app) {
+        return;
+      }
+      console.log("waiting");
+      await sleep(1e3);
+    }
+    throw new Error("Time out");
+  }
+};
+var weiboDesktopToutiaoAdaptor_default = new weiboDesktopAdpator2();
+
+// src/adaptor/bilibiliVideoAdaptor.ts
+var bilibiliVideoAdaptor = class {
+  constructor() {
+    this.platform = "B\u7AD9\u89C6\u9891";
+    this.contentSelector = "";
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/bilibili.svg?sign=5ec53ed6636eb21bbcebb7fabcec97c5&t=1654839452";
+  }
+  isMatch(url) {
+    return /(b23\.tv)|(bilibili\.com)/.test(url);
+  }
+  authorName() {
+    const el = document.querySelector(".username");
+    return getText(el);
+  }
+  articleName() {
+    const el = document.querySelector(".video-title.tit");
+    return getText(el);
+  }
+  publishTime() {
+    const el = document.querySelector(".pudate.item");
+    return getText(el);
+  }
+  async bgImgUrl() {
+    return void 0;
+  }
+  async processImgUrl(url) {
+    return isLegalNotionImgFormat(url) ? url : void 0;
+  }
+  extractImgSrc(x) {
+    return x.src;
+  }
+  shouldSkip(x) {
+    return false;
+  }
+  forbidRequest(url) {
+    return [
+      ".css",
+      ".woff",
+      ".svg",
+      "bilivideo.com",
+      "data.bilibili.com"
+    ].some((x) => url.includes(x));
+  }
+  async customCrawlPageLogic() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const page = urlParams.get("p") || 1;
+    return [{
+      type: "embed",
+      embed: {
+        url: `https://player.bilibili.com/player.html?bvid=${window.bvid}&page=${page}`
+      }
+    }];
+  }
+};
+var bilibiliVideoAdaptor_default = new bilibiliVideoAdaptor();
+
+// src/adaptor/coolapkFeedAdaptor.ts
+var coolapkFeedAdaptor = class {
+  constructor() {
+    this.platform = "\u9177\u5B89feed";
+    this.contentSelector = "";
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/coolapk.svg?sign=afd08253f4e55d727e33548f066b3643&t=1654841991";
+  }
+  isMatch(url) {
+    return /www\.coolapk\.com\/feed/.test(url);
+  }
+  authorName() {
+    const el = document.querySelector(".username-item p");
+    return getText(el);
+  }
+  articleName() {
+    const el = document.querySelector(".message-title") || document.querySelector("title");
+    return getText(el);
+  }
+  publishTime() {
+    return void 0;
+  }
+  async bgImgUrl() {
+    return void 0;
+  }
+  async processImgUrl(url) {
+    return isLegalNotionImgFormat(url) ? url : void 0;
+  }
+  async getContent() {
+    const feedMessage = document.querySelector(".feed-message") || document.createComment("");
+    const messageImageGroup = document.querySelector(".message-image-group") || document.createComment("");
+    const container = document.createElement("div");
+    container.append(feedMessage);
+    container.append(messageImageGroup);
+    return container;
+  }
+  extractImgSrc(x) {
+    var _a;
+    return (_a = x.src) == null ? void 0 : _a.replace("http://", "https://");
+  }
+  shouldSkip(x) {
+    return false;
+  }
+  forbidRequest(url) {
+    return [
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".js",
+      ".css",
+      "data:image"
+    ].some((x) => url.includes(x));
+  }
+};
+var coolapkFeedAdaptor_default = new coolapkFeedAdaptor();
+
+// src/adaptor/xiaoyuzhoufmAdaptor.ts
+var xiaoyuzhoufmAdaptor = class {
+  constructor() {
+    this.platform = "\u5C0F\u5B87\u5B99fm";
+    this.contentSelector = "";
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/xiaoyuzhoufm.png?sign=dcf76227ef81f1ff9616e35a83b910ea&t=1654845878";
+  }
+  isMatch(url) {
+    return /www\.xiaoyuzhoufm\.com\/episode/.test(url);
+  }
+  authorName() {
+    const el = document.querySelector(".name");
+    return getText(el);
+  }
+  articleName() {
+    const el = document.querySelector("header .title") || document.querySelector("title");
+    return getText(el);
+  }
+  publishTime() {
+    return void 0;
+  }
+  async bgImgUrl() {
+    return void 0;
+  }
+  async processImgUrl(url) {
+    return isLegalNotionImgFormat(url) ? url : void 0;
+  }
+  async getContent() {
+    const audio = document.querySelector("audio") || document.createComment("");
+    const content = document.querySelector("article") || document.createComment("");
+    const container = document.createElement("div");
+    container.append(audio);
+    container.append(content);
+    return container;
+  }
+  extractImgSrc(x) {
+    var _a;
+    return (_a = x.src) == null ? void 0 : _a.replace("http://", "https://");
+  }
+  shouldSkip(x) {
+    return false;
+  }
+  forbidRequest(url) {
+    return [
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".css",
+      "image.xyzcdn.net"
+    ].some((x) => url.includes(x));
+  }
+};
+var xiaoyuzhoufmAdaptor_default = new xiaoyuzhoufmAdaptor();
+
+// src/adaptor/defaultAdaptor.ts
+var defaultAdaptor = class {
+  constructor() {
+    this.platform = "\u515C\u5E95";
+    this.contentSelector = "";
+    this.iconUrl = "";
+  }
+  isMatch(url) {
+    return true;
+  }
+  authorName() {
+    return "";
+  }
+  articleName() {
+    return document.title;
+  }
+  publishTime() {
+    return void 0;
+  }
+  async bgImgUrl() {
+    return void 0;
+  }
+  async processImgUrl(url) {
+    return isLegalNotionImgFormat(url) ? url : void 0;
+  }
+  extractImgSrc(x) {
+    return x.src;
+  }
+  shouldSkip(x) {
+    return false;
+  }
+  async getContent() {
+    const container = document.createElement("div");
+    return container;
+  }
+  forbidRequest(url) {
+    return [
+      ".css",
+      ".woff",
+      ".svg",
+      ".js",
+      "data:",
+      ".png",
+      ".svg",
+      ".jpeg",
+      ".jpg",
+      ".gif",
+      ".webp"
+    ].some((x) => url.includes(x));
+  }
+};
+var defaultAdaptor_default = new defaultAdaptor();
 
 // src/adaptor/index.ts
 var adaptorArr = [
@@ -721,7 +1064,13 @@ var adaptorArr = [
   neteaseMobileAdaptor_default,
   qqChannelAdaptor_default,
   xueqiuPostAdaptor_default,
-  weiboMobileAdaptor_default
+  weiboMobileAdaptor_default,
+  weiboDesktopToutiaoAdaptor_default,
+  weiboDesktopAdaptor_default,
+  bilibiliVideoAdaptor_default,
+  coolapkFeedAdaptor_default,
+  xiaoyuzhoufmAdaptor_default,
+  defaultAdaptor_default
 ];
 function getAdaptor(url) {
   for (const adaptor of adaptorArr) {
@@ -778,6 +1127,9 @@ function isSpanElement(el) {
 function shouldSkip(tag) {
   return ["TEXTAREA", "STYLE", "SCRIPT", "NOSCRIPT", "SOURCE"].includes(tag);
 }
+function isAudioElement(el) {
+  return ["AUDIO"].includes(el.tagName);
+}
 function isTextLevelSemanticsElement(x) {
   return [
     "A",
@@ -820,8 +1172,9 @@ function replaceAttributes(to, from) {
   }
 }
 async function convertBody() {
+  var _a, _b;
   const adaptor = window.adaptor;
-  const content = document.querySelector(adaptor.contentSelector);
+  const content = await ((_b = (_a = window.adaptor).getContent) == null ? void 0 : _b.call(_a)) || document.querySelector(adaptor.contentSelector);
   const flatten = (el) => {
     while (Array.from(el.children).length === 1 && Array.from(el.children[0].children).length !== 0) {
       el = el.children[0];
@@ -837,14 +1190,14 @@ async function convertBody() {
     return result;
   };
   async function genNotionFormat(el) {
-    var _a, _b;
-    if (!(isTextNode(el) || isElementNode(el)) || isElementNode(el) && (((_a = adaptor.shouldSkip) == null ? void 0 : _a.call(adaptor, el.tagName)) || shouldSkip(el.tagName))) {
+    var _a2, _b2;
+    if (!(isTextNode(el) || isElementNode(el)) || isElementNode(el) && (((_a2 = adaptor.shouldSkip) == null ? void 0 : _a2.call(adaptor, el.tagName)) || shouldSkip(el.tagName))) {
       return [];
     }
     if (isTextNode(el)) {
       const p = document.createElement("p");
       p.textContent = el.textContent;
-      return ((_b = el.textContent) == null ? void 0 : _b.trim()) !== "" ? treatAsParagraph(p) : [];
+      return ((_b2 = el.textContent) == null ? void 0 : _b2.trim()) !== "" ? treatAsParagraph(p) : [];
     } else if (isHeadingElement(el)) {
       return treatAsHeading(el);
     } else if (isImgElement(el)) {
@@ -863,6 +1216,8 @@ async function convertBody() {
       return treatAsCodeBlock(el);
     } else if (isTableElement(el)) {
       return treatAsTable(el);
+    } else if (isAudioElement(el)) {
+      return treatAsAudio(el);
     } else {
       const p = document.createElement("p");
       replaceChildren(p, [...el.childNodes]);
@@ -870,6 +1225,16 @@ async function convertBody() {
       return treatAsParagraph(p);
     }
   }
+  const treatAsAudio = async (el) => {
+    return el.src ? [
+      {
+        type: "embed",
+        embed: {
+          url: el.src
+        }
+      }
+    ] : [];
+  };
   const treatAsTable = async (el) => {
     const hasHeader = el.querySelector("thead") !== void 0;
     const trs = el.querySelectorAll("tr");
@@ -878,8 +1243,8 @@ async function convertBody() {
       children.push(...await processTr(x));
     }
     async function processTr(tr) {
-      var _a;
-      const shouldBeTrOrTh = ((_a = tr.firstElementChild) == null ? void 0 : _a.tagName) === "TH" ? "th" : "td";
+      var _a2;
+      const shouldBeTrOrTh = ((_a2 = tr.firstElementChild) == null ? void 0 : _a2.tagName) === "TH" ? "th" : "td";
       const childElements = [...tr.children];
       for (let i = 0; i < childElements.length; i++) {
         const cell = childElements[i];
@@ -900,8 +1265,8 @@ async function convertBody() {
         const td = cells[i];
         const processed = await genNotionFormat(td);
         const text = processed.map((c) => {
-          var _a2;
-          return ((_a2 = c == null ? void 0 : c.paragraph) == null ? void 0 : _a2.rich_text) || [{
+          var _a3;
+          return ((_a3 = c == null ? void 0 : c.paragraph) == null ? void 0 : _a3.rich_text) || [{
             type: "text",
             text: {
               content: "Notion Table\u4E0D\u652F\u6301\u8BE5\u7C7B\u578BBlock\uFF0C\u526A\u85CF\u5931\u8D25",
@@ -982,7 +1347,7 @@ async function convertBody() {
   };
   const treatAsListItem = async (el) => {
     const [first = {}, ...rest] = await processInternal(el);
-    const children = rest.length !== 0 ? [...first.children || [], ...rest] : first.children || [first];
+    const children = rest.length !== 0 ? [...first.children || [], ...rest] : first.children || [];
     return [{
       type: "bulleted_list_item",
       bulleted_list_item: {
@@ -1099,8 +1464,8 @@ async function convertBody() {
     }
   };
   const treatAsParagraph = (el) => {
-    var _a;
-    while (el.childElementCount === 1 && ((_a = el.firstElementChild) == null ? void 0 : _a.tagName) === "P") {
+    var _a2;
+    while (el.childElementCount === 1 && ((_a2 = el.firstElementChild) == null ? void 0 : _a2.tagName) === "P") {
       el = el.firstElementChild;
     }
     if (isAllTextChildren(el)) {

@@ -4,14 +4,16 @@ import type { IParseType } from '../index'
 export async function parse(page: Page, type: IParseType) {
   let errMsg: string[] = []
 
+  console.log("waiting")
   await page.evaluate(async () => {
     await window.adaptor.waitUntil?.()
   })
-  const getArticleBody = () => type === "save" && page.evaluate(() => window.convertBody()).catch(e => {
+  console.log("start Crawling")
+  const getArticleBody = () => type === "save" ? page.evaluate(() => window.adaptor.customCrawlPageLogic?.() || window.convertBody()).catch(e => {
     errMsg.push("文章内容提取失败")
     console.log(e)
     return undefined
-  })
+  }) : []
   const getArticleName = () => page.evaluate(() => window.adaptor.articleName()).catch(e => {
     errMsg.push("文章标题提取失败")
     console.log(e)

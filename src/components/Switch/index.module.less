@@ -1,0 +1,57 @@
+.switchWrapper{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  .btnWrapper{
+    padding:10rpx;
+    height: 30rpx;
+    width: 90rpx;
+    background-color: rgba(253,253,253);
+    border-radius: 50rpx;
+    box-shadow: 0 0 0 2rpx rgba(0,0,0,0.05) inset;
+    overflow: hidden;
+    .btn{
+      position: relative;
+      height:30rpx;
+      width:30rpx;
+      border-radius: 50rpx;
+      background-image: linear-gradient(to bottom, rgba(255,255,255) 0%, rgba(240,240,240) 100%);
+      box-shadow: 0 0rpx 2rpx 2rpx rgba(0,0,0,0.1);
+      &::before,
+      &::after{
+        content: '';
+        display: block;
+        width: 18rpx;
+        height: 18rpx;
+        top: 6rpx;
+        left: 6rpx;
+        position: absolute;
+        background-color: #000;
+        border-radius: 50rpx;
+      }
+      &::before{
+        background-color: #5C89F2;
+        transform: translateX(-60rpx);
+      }
+      &::after{
+        background-color: rgb(236,236,236);
+        transform: translateX(60rpx);
+      }
+    }
+  }
+}
+
+@media (prefers-color-scheme:dark){
+  .switchWrapper{
+    .btnWrapper{
+      background-color: rgb(0,0,0);
+      .btn{
+        background-image: none;
+        background-color: rgb(34,34,34);
+        &::after{
+          background-color: rgb(15,15,15);
+        }
+      }
+    }
+  }
+}

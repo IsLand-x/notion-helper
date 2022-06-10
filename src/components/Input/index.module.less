@@ -4,7 +4,26 @@
     font-weight: bold;
     padding-bottom: 12rpx;
   }
+  .inputWrapper{
+    display: flex;
+    .deleteWrapper{
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border:2rpx solid var(--color-border);
+      margin-left: 4rpx;
+      background-color: #5C89F2;
+      border-radius: 16rpx;
+      padding:0 8rpx;
+      .delete{
+        height: 40rpx;
+        width: 40rpx;
+      }
+    }
+  }
+  
   .input{
+    flex:1;
     border:2rpx solid var(--color-border);
     height: 40rpx;
     padding: 10rpx 20rpx;

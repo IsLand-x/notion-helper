@@ -22,6 +22,12 @@ import neteaseMobileAdaptor from './neteaseMobileAdaptor';
 import qqChannelAdaptor from './qqChannelAdaptor';
 
 import weiboMobileAdaptor from './weiboMobileAdaptor';
+import weiboDesktopAdaptor from './weiboDesktopAdaptor';
+import weiboToutiaoAdaptor from './weiboDesktopToutiaoAdaptor'
+import bilibiliVideoAdaptor from './bilibiliVideoAdaptor';
+import coolapkFeedAdaptor from './coolapkFeedAdaptor';
+import xiaoyuzhoufmAdaptor from './xiaoyuzhoufmAdaptor';
+import defaultAdaptor from './defaultAdaptor';
 
 const adaptorArr = [
   mpAdaptor,
@@ -48,6 +54,16 @@ const adaptorArr = [
   xueqiuPostAdaptor,
 
   weiboMobileAdaptor,
+  weiboToutiaoAdaptor,
+  weiboDesktopAdaptor,
+
+  bilibiliVideoAdaptor,
+
+  coolapkFeedAdaptor,
+
+  xiaoyuzhoufmAdaptor,
+
+  defaultAdaptor,
 ]
 
 export function getAdaptor(url: string): IArticleAdaptor | undefined {
