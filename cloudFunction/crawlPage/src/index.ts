@@ -7,11 +7,15 @@ import { Client } from '@notionhq/client'
 
 type ParsedRes = Awaited<ReturnType<typeof parse>>
 
-export type IParseType = "save" | "getBasicInfo"
+export type IParseType = "save" | "getBasicInfo" | "shortcut"
 
 type IEvent = {
+  type: "save" | "getBasicInfo";
   url: string;
-  type: IParseType
+} | {
+  type:"shortcut";
+  url:string;
+  secret:string;
 }
 
 type CloudRes<T> = {
@@ -30,7 +34,7 @@ type IUserData = {
 cloud.init()
 const _ = cloud.database().command
 
-const debugUrl = false && "ws://localhost:9222/devtools/browser/2da2dee7-ad3b-4bb8-aacd-34f97b365d91"
+const debugUrl = "ws://localhost:9222/devtools/browser/c946f795-f9de-4474-85f9-2fc36736233b"
 
 const sleep = (ms: number) => {
   return new Promise(resolve => setTimeout(resolve, ms))
@@ -173,16 +177,22 @@ async function saveToNotion(res: ParsedRes, user: IUserData, adaptor: IArticleAd
         ? '暂不支持该平台内容剪藏，但保存链接到Notion'
         : res.errMsg
           ? res.errMsg + ',但成功保存链接到Notion'
-          : 'ok'
+          : 'ok',
+    data: {
+      articleName,
+      author:authorName
+    }
   }
 }
 
-async function getUserData(): Promise<null | IUserData> {
+async function getUserData(secret?:string): Promise<null | IUserData> {
   const { OPENID } = cloud.getWXContext()
   const data = await cloud.database()
     .collection('user')
-    .where({
+    .where(OPENID ? {
       openid: OPENID
+    } : {
+      key:secret
     })
     .limit(1)
     .get();
@@ -204,13 +214,18 @@ const tryAddCount = (openid: string) => {
 let callCount = 0
 
 export async function main(evt: IEvent): Promise<CloudRes<{} | undefined>> {
+  console.log(evt)
   const { type = "save", url } = evt
+  let secret;
+  if (['shortcut','crx'].includes(evt.type)) {
+    secret = evt.secret
+  }
   console.log("CallCount", callCount++)
   console.log("Type:", type)
   console.log("Url:", url)
   const wxCtx = getWXContext()
   console.log(wxCtx)
-  const userData = await getUserData()
+  const userData = await getUserData(secret)
   if (!userData) {
     return {
       errMsg: '请先根据教程绑定到Notion助手'

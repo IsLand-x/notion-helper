@@ -1111,6 +1111,7 @@ function getAdaptor(url) {
 }
 
 // src/parser/index.ts
+var shouldSave = (type) => ["shortcut", "save"].includes(type);
 async function parse(page, type) {
   let errMsg = [];
   console.log("waiting");
@@ -1119,7 +1120,7 @@ async function parse(page, type) {
     await ((_b = (_a = window.adaptor).waitUntil) == null ? void 0 : _b.call(_a));
   });
   console.log("start Crawling");
-  const getArticleBody = () => type === "save" ? page.evaluate(() => {
+  const getArticleBody = () => shouldSave(type) ? page.evaluate(() => {
     var _a, _b;
     return ((_b = (_a = window.adaptor).customCrawlPageLogic) == null ? void 0 : _b.call(_a)) || window.convertBody();
   }).catch((e) => {
@@ -1137,12 +1138,12 @@ async function parse(page, type) {
     console.log(e);
     return "\u4F5C\u8005\u540D\u79F0\u63D0\u53D6\u5931\u8D25";
   });
-  const getPublishTime = () => type === "save" && page.evaluate(() => window.adaptor.publishTime()).catch((e) => {
+  const getPublishTime = () => shouldSave(type) && page.evaluate(() => window.adaptor.publishTime()).catch((e) => {
     errMsg.push("\u53D1\u5E03\u65E5\u671F\u63D0\u53D6\u5931\u8D25");
     console.log(e);
     return new Date();
   });
-  const getBgImgUrl = () => type === "save" && page.evaluate(() => window.adaptor.bgImgUrl()).catch((e) => {
+  const getBgImgUrl = () => shouldSave(type) && page.evaluate(() => window.adaptor.bgImgUrl()).catch((e) => {
     errMsg.push("\u80CC\u666F\u56FE\u63D0\u53D6\u5931\u8D25");
     console.log(e);
     return void 0;
@@ -1179,7 +1180,7 @@ var import_puppeteer = __toESM(require("puppeteer"));
 var import_client = require("@notionhq/client");
 import_wx_server_sdk.default.init();
 var _ = import_wx_server_sdk.default.database().command;
-var debugUrl = false;
+var debugUrl = "ws://localhost:9222/devtools/browser/c946f795-f9de-4474-85f9-2fc36736233b";
 var sleep7 = (ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
@@ -1313,13 +1314,19 @@ async function saveToNotion(res, user, adaptor) {
     };
   }
   return {
-    errMsg: adaptor.platform === "\u515C\u5E95" ? "\u6682\u4E0D\u652F\u6301\u8BE5\u5E73\u53F0\u5185\u5BB9\u526A\u85CF\uFF0C\u4F46\u4FDD\u5B58\u94FE\u63A5\u5230Notion" : res.errMsg ? res.errMsg + ",\u4F46\u6210\u529F\u4FDD\u5B58\u94FE\u63A5\u5230Notion" : "ok"
+    errMsg: adaptor.platform === "\u515C\u5E95" ? "\u6682\u4E0D\u652F\u6301\u8BE5\u5E73\u53F0\u5185\u5BB9\u526A\u85CF\uFF0C\u4F46\u4FDD\u5B58\u94FE\u63A5\u5230Notion" : res.errMsg ? res.errMsg + ",\u4F46\u6210\u529F\u4FDD\u5B58\u94FE\u63A5\u5230Notion" : "ok",
+    data: {
+      articleName,
+      author: authorName
+    }
   };
 }
-async function getUserData() {
+async function getUserData(secret) {
   const { OPENID } = import_wx_server_sdk.default.getWXContext();
-  const data = await import_wx_server_sdk.default.database().collection("user").where({
+  const data = await import_wx_server_sdk.default.database().collection("user").where(OPENID ? {
     openid: OPENID
+  } : {
+    key: secret
   }).limit(1).get();
   return data.data[0];
 }
@@ -1333,13 +1340,18 @@ var tryAddCount = (openid) => {
 };
 var callCount = 0;
 async function main(evt) {
+  console.log(evt);
   const { type = "save", url } = evt;
+  let secret;
+  if (["shortcut", "crx"].includes(evt.type)) {
+    secret = evt.secret;
+  }
   console.log("CallCount", callCount++);
   console.log("Type:", type);
   console.log("Url:", url);
   const wxCtx = (0, import_wx_server_sdk.getWXContext)();
   console.log(wxCtx);
-  const userData = await getUserData();
+  const userData = await getUserData(secret);
   if (!userData) {
     return {
       errMsg: "\u8BF7\u5148\u6839\u636E\u6559\u7A0B\u7ED1\u5B9A\u5230Notion\u52A9\u624B"

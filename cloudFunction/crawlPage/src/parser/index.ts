@@ -1,6 +1,7 @@
 import { Page } from 'puppeteer';
 import type { IParseType } from '../index'
 
+const shouldSave = (type:string) => ["shortcut","save"].includes(type)
 export async function parse(page: Page, type: IParseType) {
   let errMsg: string[] = []
 
@@ -9,7 +10,7 @@ export async function parse(page: Page, type: IParseType) {
     await window.adaptor.waitUntil?.()
   })
   console.log("start Crawling")
-  const getArticleBody = () => type === "save" ? page.evaluate(() => window.adaptor.customCrawlPageLogic?.() || window.convertBody()).catch(e => {
+  const getArticleBody = () => shouldSave(type) ? page.evaluate(() => window.adaptor.customCrawlPageLogic?.() || window.convertBody()).catch(e => {
     errMsg.push("文章内容提取失败")
     console.log(e)
     return undefined
@@ -24,12 +25,12 @@ export async function parse(page: Page, type: IParseType) {
     console.log(e)
     return "作者名称提取失败"
   })
-  const getPublishTime = () => type === "save" && page.evaluate(() => window.adaptor.publishTime()).catch(e => {
+  const getPublishTime = () => shouldSave(type)  && page.evaluate(() => window.adaptor.publishTime()).catch(e => {
     errMsg.push("发布日期提取失败")
     console.log(e)
     return new Date()
   })
-  const getBgImgUrl = () => type === "save" && page.evaluate(() => window.adaptor.bgImgUrl()).catch(e => {
+  const getBgImgUrl = () => shouldSave(type)  && page.evaluate(() => window.adaptor.bgImgUrl()).catch(e => {
     errMsg.push("背景图提取失败")
     console.log(e)
     return undefined
