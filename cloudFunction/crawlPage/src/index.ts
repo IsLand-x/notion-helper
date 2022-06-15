@@ -45,7 +45,7 @@ type IUserData = {
 cloud.init()
 const _ = cloud.database().command
 
-const debugUrl = false && "ws://localhost:9222/devtools/browser/c946f795-f9de-4474-85f9-2fc36736233b"
+const debugUrl = false && "ws://localhost:9222/devtools/browser/a269d5b6-1d02-433f-969e-cee047e77a95"
 
 const sleep = (ms: number) => {
   return new Promise(resolve => setTimeout(resolve, ms))
@@ -77,6 +77,11 @@ async function openPage(url: string, adaptor: IArticleAdaptor, evt:IEvent) {
       const title = document.createElement("title")
       title.textContent = evt.articleName
       document.head.appendChild(title)
+
+      const link = document.createElement("div")
+      link.textContent = evt.href
+      link.id = "__notion__helper__link__"
+      document.body.appendChild(link)
 
       const container = document.createElement("div")
       container.id = "__notion__helper__container__"

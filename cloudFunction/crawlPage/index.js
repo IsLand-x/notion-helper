@@ -32,7 +32,7 @@ var getText = (el) => {
   var _a;
   return ((_a = el.textContent) == null ? void 0 : _a.trim()) || "";
 };
-var isLegalNotionImgFormat = (url) => url ? /\.(png|jpg|jpeg|gif|tif|tiff|bmp|svg|heic)$/.test(url) : false;
+var isLegalNotionImgFormat = (url) => url ? /\.(png|jpg|jpeg|gif|tif|tiff|bmp|svg|heic)/.test(url) : false;
 var sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // src/adaptor/mpAdaptor.ts
@@ -1048,7 +1048,16 @@ var crxAdaptor = class {
     return isLegalNotionImgFormat(url) ? url : void 0;
   }
   extractImgSrc(x) {
-    return x.src;
+    const link = getText(document.querySelector("#__notion__helper__link__"));
+    const src = x.getAttribute("src") || x.getAttribute("data-src") || x.getAttribute("data-original") || "";
+    let prefix = "";
+    try {
+      const url = new URL(link);
+      prefix = url.origin;
+    } catch (e) {
+      prefix = "";
+    }
+    return isLegalNotionImgFormat(src) && src.startsWith("http") ? x.getAttribute("src") : prefix + x.getAttribute("src");
   }
   shouldSkip(x) {
     return false;
@@ -1271,6 +1280,10 @@ async function openPage(url, adaptor, evt) {
       const title = document.createElement("title");
       title.textContent = evt.articleName;
       document.head.appendChild(title);
+      const link = document.createElement("div");
+      link.textContent = evt.href;
+      link.id = "__notion__helper__link__";
+      document.body.appendChild(link);
       const container = document.createElement("div");
       container.id = "__notion__helper__container__";
       container.innerHTML = evt.content;

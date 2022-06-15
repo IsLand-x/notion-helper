@@ -32,7 +32,18 @@ class crxAdaptor implements IArticleAdaptor {
   contentSelector = '#__notion__helper__container__'
 
   extractImgSrc(x: HTMLImageElement) {
-    return x.src
+    const link = getText(document.querySelector("#__notion__helper__link__")!)
+    const src = x.getAttribute("src")! || x.getAttribute("data-src")! || x.getAttribute("data-original")! || ""
+    let prefix = ""
+    try {
+      const url = new URL(link)
+      prefix = url.origin
+    } catch (e) {
+      prefix = ""
+    }
+    return isLegalNotionImgFormat(src) && src.startsWith("http")
+      ? x.getAttribute("src")!
+      : (prefix + x.getAttribute("src"))
   }
 
   shouldSkip(x: string) {
