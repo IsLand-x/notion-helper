@@ -27,6 +27,9 @@ import weiboToutiaoAdaptor from './weiboDesktopToutiaoAdaptor'
 import bilibiliVideoAdaptor from './bilibiliVideoAdaptor';
 import coolapkFeedAdaptor from './coolapkFeedAdaptor';
 import xiaoyuzhoufmAdaptor from './xiaoyuzhoufmAdaptor';
+
+import crxAdaptor from './crxAdaptor';
+
 import defaultAdaptor from './defaultAdaptor';
 
 const adaptorArr = [
@@ -62,6 +65,8 @@ const adaptorArr = [
   coolapkFeedAdaptor,
 
   xiaoyuzhoufmAdaptor,
+
+  crxAdaptor,
 
   defaultAdaptor,
 ]

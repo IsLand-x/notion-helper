@@ -1,7 +1,8 @@
 import { Page } from 'puppeteer';
 import type { IParseType } from '../index'
 
-const shouldSave = (type:string) => ["shortcut","save"].includes(type)
+const shouldSave = (type: string) => ["shortcut", "save","crx"].includes(type)
+
 export async function parse(page: Page, type: IParseType) {
   let errMsg: string[] = []
 
@@ -25,7 +26,13 @@ export async function parse(page: Page, type: IParseType) {
     console.log(e)
     return "作者名称提取失败"
   })
-  const getPublishTime = () => shouldSave(type)  && page.evaluate(() => window.adaptor.publishTime()).catch(e => {
+  const getPublishTime = () => shouldSave(type) && page.evaluate(() => {
+    // crx specific logic
+    if (window.location.href === 'about:blank') {
+      return (window as any).evt.date
+    }
+    return window.adaptor.publishTime()
+  }).catch(e => {
     errMsg.push("发布日期提取失败")
     console.log(e)
     return new Date()
@@ -35,7 +42,13 @@ export async function parse(page: Page, type: IParseType) {
     console.log(e)
     return undefined
   })
-  const getUrl = () => page.url()
+  const getUrl = () => page.evaluate(() => {
+    // crx specific logic
+    if (window.location.href === 'about:blank') {
+      return (window as any).evt.href
+    }
+    return window.location.href
+  })
   const [
     articleName,
     authorName,

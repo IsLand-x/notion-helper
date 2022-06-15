@@ -993,6 +993,55 @@ var xiaoyuzhoufmAdaptor = class {
 };
 var xiaoyuzhoufmAdaptor_default = new xiaoyuzhoufmAdaptor();
 
+// src/adaptor/crxAdaptor.ts
+var crxAdaptor = class {
+  constructor() {
+    this.platform = "crx";
+    this.contentSelector = "#__notion__helper__container__";
+    this.iconUrl = "";
+  }
+  isMatch(url) {
+    return url === "about:blank";
+  }
+  authorName() {
+    return getText(document.querySelector("#__notion__helper__author__"));
+  }
+  articleName() {
+    return document.title;
+  }
+  publishTime() {
+    return getText(document.querySelector("#__notion__helper__date__")) || void 0;
+  }
+  async bgImgUrl() {
+    return void 0;
+  }
+  async processImgUrl(url) {
+    return isLegalNotionImgFormat(url) ? url : void 0;
+  }
+  extractImgSrc(x) {
+    return x.src;
+  }
+  shouldSkip(x) {
+    return false;
+  }
+  forbidRequest(url) {
+    return [
+      ".css",
+      ".woff",
+      ".svg",
+      ".js",
+      "data:",
+      ".png",
+      ".svg",
+      ".jpeg",
+      ".jpg",
+      ".gif",
+      ".webp"
+    ].some((x) => url.includes(x));
+  }
+};
+var crxAdaptor_default = new crxAdaptor();
+
 // src/adaptor/defaultAdaptor.ts
 var defaultAdaptor = class {
   constructor() {
@@ -1070,6 +1119,7 @@ var adaptorArr = [
   bilibiliVideoAdaptor_default,
   coolapkFeedAdaptor_default,
   xiaoyuzhoufmAdaptor_default,
+  crxAdaptor_default,
   defaultAdaptor_default
 ];
 function getAdaptor(url) {

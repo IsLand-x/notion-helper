@@ -1022,6 +1022,55 @@ var xiaoyuzhoufmAdaptor = class {
 };
 var xiaoyuzhoufmAdaptor_default = new xiaoyuzhoufmAdaptor();
 
+// src/adaptor/crxAdaptor.ts
+var crxAdaptor = class {
+  constructor() {
+    this.platform = "crx";
+    this.contentSelector = "#__notion__helper__container__";
+    this.iconUrl = "";
+  }
+  isMatch(url) {
+    return url === "about:blank";
+  }
+  authorName() {
+    return getText(document.querySelector("#__notion__helper__author__"));
+  }
+  articleName() {
+    return document.title;
+  }
+  publishTime() {
+    return getText(document.querySelector("#__notion__helper__date__")) || void 0;
+  }
+  async bgImgUrl() {
+    return void 0;
+  }
+  async processImgUrl(url) {
+    return isLegalNotionImgFormat(url) ? url : void 0;
+  }
+  extractImgSrc(x) {
+    return x.src;
+  }
+  shouldSkip(x) {
+    return false;
+  }
+  forbidRequest(url) {
+    return [
+      ".css",
+      ".woff",
+      ".svg",
+      ".js",
+      "data:",
+      ".png",
+      ".svg",
+      ".jpeg",
+      ".jpg",
+      ".gif",
+      ".webp"
+    ].some((x) => url.includes(x));
+  }
+};
+var crxAdaptor_default = new crxAdaptor();
+
 // src/adaptor/defaultAdaptor.ts
 var defaultAdaptor = class {
   constructor() {
@@ -1099,6 +1148,7 @@ var adaptorArr = [
   bilibiliVideoAdaptor_default,
   coolapkFeedAdaptor_default,
   xiaoyuzhoufmAdaptor_default,
+  crxAdaptor_default,
   defaultAdaptor_default
 ];
 function getAdaptor(url) {
@@ -1111,7 +1161,7 @@ function getAdaptor(url) {
 }
 
 // src/parser/index.ts
-var shouldSave = (type) => ["shortcut", "save"].includes(type);
+var shouldSave = (type) => ["shortcut", "save", "crx"].includes(type);
 async function parse(page, type) {
   let errMsg = [];
   console.log("waiting");
@@ -1138,7 +1188,12 @@ async function parse(page, type) {
     console.log(e);
     return "\u4F5C\u8005\u540D\u79F0\u63D0\u53D6\u5931\u8D25";
   });
-  const getPublishTime = () => shouldSave(type) && page.evaluate(() => window.adaptor.publishTime()).catch((e) => {
+  const getPublishTime = () => shouldSave(type) && page.evaluate(() => {
+    if (window.location.href === "about:blank") {
+      return window.evt.date;
+    }
+    return window.adaptor.publishTime();
+  }).catch((e) => {
     errMsg.push("\u53D1\u5E03\u65E5\u671F\u63D0\u53D6\u5931\u8D25");
     console.log(e);
     return new Date();
@@ -1148,7 +1203,12 @@ async function parse(page, type) {
     console.log(e);
     return void 0;
   });
-  const getUrl = () => page.url();
+  const getUrl = () => page.evaluate(() => {
+    if (window.location.href === "about:blank") {
+      return window.evt.href;
+    }
+    return window.location.href;
+  });
   const [
     articleName,
     authorName,
@@ -1180,11 +1240,11 @@ var import_puppeteer = __toESM(require("puppeteer"));
 var import_client = require("@notionhq/client");
 import_wx_server_sdk.default.init();
 var _ = import_wx_server_sdk.default.database().command;
-var debugUrl = "ws://localhost:9222/devtools/browser/c946f795-f9de-4474-85f9-2fc36736233b";
+var debugUrl = false;
 var sleep7 = (ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
-async function openPage(url, adaptor) {
+async function openPage(url, adaptor, evt) {
   const browser = !debugUrl ? await import_puppeteer.default.launch({
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
   }) : await import_puppeteer.default.connect({
@@ -1203,7 +1263,26 @@ async function openPage(url, adaptor) {
   await page.setBypassCSP(true);
   await page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36 Edg/101.0.1210.53");
   await page.setCookie(...adaptor.cookie || []);
-  await page.goto(url);
+  if (isFromCrx(evt)) {
+    await page.addScriptTag({
+      content: `window.evt = ${JSON.stringify(evt)}`
+    });
+    await page.evaluate(() => {
+      const title = document.createElement("title");
+      title.textContent = evt.articleName;
+      document.head.appendChild(title);
+      const container = document.createElement("div");
+      container.id = "__notion__helper__container__";
+      container.innerHTML = evt.content;
+      document.body.appendChild(container);
+      const author = document.createElement("div");
+      author.id = "__notion__helper__author__";
+      author.innerHTML = evt.author;
+      document.body.appendChild(author);
+    });
+  } else {
+    await page.goto(url);
+  }
   if (adaptor.waitNavigation) {
     await page.waitForNavigation();
   }
@@ -1251,7 +1330,7 @@ async function saveToNotion(res, user, adaptor) {
       Href: {
         url
       },
-      Date: publishTime === void 0 ? void 0 : {
+      Date: [void 0, null].includes(publishTime) ? void 0 : {
         date: {
           start: new Date(+new Date(publishTime) + 8 * 3600 * 1e3).toISOString().slice(0, -1) + "+08:00"
         }
@@ -1339,11 +1418,22 @@ var tryAddCount = (openid) => {
   });
 };
 var callCount = 0;
+function isFromMP(evt) {
+  return ["getBasicInfo", "save"].includes(evt.type);
+}
+function isFromCrx(evt) {
+  return evt.type === "crx";
+}
+function isFromShortcut(evt) {
+  return evt.type === "shortcut";
+}
 async function main(evt) {
   console.log(evt);
-  const { type = "save", url } = evt;
-  let secret;
-  if (["shortcut", "crx"].includes(evt.type)) {
+  let type = evt.type, url = "about:blank", secret;
+  if (isFromShortcut(evt) || isFromMP(evt)) {
+    url = evt.url;
+  }
+  if (isFromCrx(evt) || isFromShortcut(evt)) {
     secret = evt.secret;
   }
   console.log("CallCount", callCount++);
@@ -1358,7 +1448,8 @@ async function main(evt) {
     };
   }
   const adaptor = getAdaptor(url);
-  const { page, closeBrowser } = await openPage(url, adaptor);
+  console.log(evt);
+  const { page, closeBrowser } = await openPage(url, adaptor, evt);
   const parsedRes = await parse(page, type).finally(closeBrowser);
   if (type === "getBasicInfo") {
     return {

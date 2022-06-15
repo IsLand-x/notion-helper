@@ -7,7 +7,7 @@ import { Client } from '@notionhq/client'
 
 type ParsedRes = Awaited<ReturnType<typeof parse>>
 
-export type IParseType = "save" | "getBasicInfo" | "shortcut"
+export type IParseType = IEvent["type"]
 
 type IEvent = {
   type: "save" | "getBasicInfo";
@@ -16,7 +16,18 @@ type IEvent = {
   type:"shortcut";
   url:string;
   secret:string;
+} | {
+  type: "crx";
+  secret: string;
+  articleName: string
+  href: string
+  date: string
+  addDate: string
+  author: string
+  content: string
 }
+
+type EventHelper<T extends IEvent["type"],U = IEvent> = U extends { type: T } ? U : never
 
 type CloudRes<T> = {
   errMsg: string;
@@ -34,13 +45,13 @@ type IUserData = {
 cloud.init()
 const _ = cloud.database().command
 
-const debugUrl = "ws://localhost:9222/devtools/browser/c946f795-f9de-4474-85f9-2fc36736233b"
+const debugUrl = false && "ws://localhost:9222/devtools/browser/c946f795-f9de-4474-85f9-2fc36736233b"
 
 const sleep = (ms: number) => {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
-async function openPage(url: string, adaptor: IArticleAdaptor) {
+async function openPage(url: string, adaptor: IArticleAdaptor, evt:IEvent) {
   const browser = !debugUrl ? await puppeteer.launch({
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
   }) : await puppeteer.connect({
@@ -58,7 +69,28 @@ async function openPage(url: string, adaptor: IArticleAdaptor) {
   await page.setBypassCSP(true)
   await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36 Edg/101.0.1210.53');
   await page.setCookie(...(adaptor.cookie || []))
-  await page.goto(url)
+  if (isFromCrx(evt)) {
+    await page.addScriptTag({
+      content:`window.evt = ${JSON.stringify(evt)}`
+    })
+    await page.evaluate(() => {
+      const title = document.createElement("title")
+      title.textContent = evt.articleName
+      document.head.appendChild(title)
+
+      const container = document.createElement("div")
+      container.id = "__notion__helper__container__"
+      container.innerHTML = evt.content
+      document.body.appendChild(container)
+
+      const author = document.createElement("div")
+      author.id = "__notion__helper__author__"
+      author.innerHTML = evt.author
+      document.body.appendChild(author)
+    })
+  } else {
+    await page.goto(url)
+  }
   if (adaptor.waitNavigation) {
     await page.waitForNavigation()
   }
@@ -107,7 +139,7 @@ async function saveToNotion(res: ParsedRes, user: IUserData, adaptor: IArticleAd
       Href: {
         url,
       },
-      Date: publishTime === undefined ? undefined : {
+      Date: [undefined,null].includes(publishTime) ? undefined : {
         date: {
           // @ts-ignore
           start: new Date(+new Date(publishTime) + 8 * 3600 * 1000).toISOString().slice(0, -1) + '+08:00'
@@ -213,11 +245,27 @@ const tryAddCount = (openid: string) => {
 
 let callCount = 0
 
+function isFromMP(evt: IEvent): evt is EventHelper<"getBasicInfo" | "save"> {
+  return ["getBasicInfo","save"].includes(evt.type)
+}
+
+function isFromCrx(evt: IEvent): evt is EventHelper<"crx">{
+  return evt.type === 'crx'
+}
+
+function isFromShortcut(evt: IEvent): evt is EventHelper<"shortcut">{
+  return evt.type === 'shortcut'
+}
+
 export async function main(evt: IEvent): Promise<CloudRes<{} | undefined>> {
   console.log(evt)
-  const { type = "save", url } = evt
-  let secret;
-  if (['shortcut','crx'].includes(evt.type)) {
+  let type = evt.type,
+    url = 'about:blank', // default value for crx
+    secret
+  if (isFromShortcut(evt) || isFromMP(evt)) {
+    url = evt.url
+  }
+  if (isFromCrx(evt) || isFromShortcut(evt)) {
     secret = evt.secret
   }
   console.log("CallCount", callCount++)
@@ -232,7 +280,8 @@ export async function main(evt: IEvent): Promise<CloudRes<{} | undefined>> {
     }
   }
   const adaptor = getAdaptor(url)
-  const { page, closeBrowser } = await openPage(url, adaptor!)
+  console.log(evt)
+  const { page, closeBrowser } = await openPage(url, adaptor!,evt)
   const parsedRes = await parse(page, type).finally(closeBrowser)
   if (type === "getBasicInfo") {
     return {
