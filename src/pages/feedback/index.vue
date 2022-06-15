@@ -28,5 +28,12 @@ const globalConfig = useGlobal().globalConfig
         <image :src="globalConfig.addGroupImageUrl" mode="aspectFit" show-menu-by-longpress="true" />
       </div>
     </Card>
+    <Card>
+      请作者吃鸡腿🍗（由于小程序限制，赞赏码需要长按保存后手动扫码）
+      <div>感谢支持，鸡腿很好吃QWQ</div>
+      <div>
+        <image :src="globalConfig.payImgUrl" mode="aspectFit" show-menu-by-longpress="true" />
+      </div>
+    </Card>
   </ScrollableContent>
 </template>

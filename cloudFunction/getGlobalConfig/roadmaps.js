@@ -1,4 +1,12 @@
-module.exports = [{
+module.exports = [
+  {
+    version: '0.0.9',
+    date: '2022-06-15',
+    desc: [
+      "新增ios捷径和浏览器插件的宣传文案",
+      "新增赞赏码"
+    ]
+  },{
   version: '0.0.8',
   date: '2022-05-19',
   desc: [

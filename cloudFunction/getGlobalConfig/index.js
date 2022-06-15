@@ -10,6 +10,7 @@ const shareTimelineImageUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.t
 const shareAppMessageImageUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/default.png?sign=4a721519b94eb7f923fdb7d3dcb92789&t=1648963127"
 const supportPlatforms = require("./supportPlatforms.js")
 const homepageUrl = "https://island-x.notion.site/Notion-ee3600a5c08e45ae8572e3e70bc27cec"
+const payImgUrl = "cloud://cloud1-0gdb05jw5581957d.636c-cloud1-0gdb05jw5581957d-1310720469/payImg.jpg"
 exports.main = async () => {
   const wxContext = cloud.getWXContext()
 
@@ -26,7 +27,8 @@ exports.main = async () => {
       questions,
       roadmaps,
       supportPlatforms,
-      homepageUrl
+      homepageUrl,
+      payImgUrl
     }
   }
 }

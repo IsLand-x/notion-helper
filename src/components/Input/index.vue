@@ -39,7 +39,7 @@ const internalValue = computed<string>({
   <div :class="styles.wrapper">
     <div :class="styles.label">{{ label }}</div>
     <div :class="styles.inputWrapper">
-      <input :class="styles.input" v-model="internalValue" :placeholder="placeholder" />
+      <input :class="styles.input" v-model="internalValue" :placeholder="placeholder" maxlength="-1" />
       <div :class="styles.deleteWrapper" v-if="canDelete && internalValue" @click="internalValue = ''">
         <img :src="deletePng" :class="styles.delete" />
       </div>

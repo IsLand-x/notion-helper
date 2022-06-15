@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useGlobal } from '../../../../stores/global'
 import styles from './index.module.less'
-
+import Card from '../../../../components/Card/index.vue';
 const globalConfig = useGlobal().globalConfig
 
 </script>
@@ -9,7 +9,7 @@ const globalConfig = useGlobal().globalConfig
 <template>
   <div class="m-2 rounded bg-white shadow relative overflow-hidden">
     <div class="font-bold border-bottom p-1 text-sm">
-      现已支持以下平台
+      小程序和ios捷径可智能识别并剪藏如下平台的内容：
     </div>
     <div :class="styles.body">
       <div v-for="platform of globalConfig.supportPlatforms" :key="platform.platform"
@@ -21,4 +21,8 @@ const globalConfig = useGlobal().globalConfig
       </div>
     </div>
   </div>
+  <Card class="font-bold p-1 text-sm">
+    其他平台仅支持剪藏文章标题和链接。<br />
+    在电脑端推荐使用Notion助手浏览器插件，使用教程、下载地址详见主页。
+  </Card>
 </template>

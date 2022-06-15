@@ -112,6 +112,12 @@ const navigateToVideo = () => {
       <Paragraph>
         如果你是ios用户，需要注意，因为微信ios端并没有开放“保存聊天素材到小程序”API，所以暂时无法实现上述快捷保存功能。建议暂时将文章链接复制到“备忘录”等第三方应用，通过“批量保存”功能一次性保存所有文章，提升阅读体验和收藏效率。
       </Paragraph>
+      <Paragraph>
+        ios用户可以使用Notion助手提供的捷径剪藏内容，使用教程以及捷径链接详见Notion助手主页。
+      </Paragraph>
+      <Paragraph>
+        此外，Notion助手提供了浏览器插件，使用教程以及插件下载链接详见Notion助手主页。
+      </Paragraph>
       <Heading1>完成</Heading1>
       <Paragraph>可以看到，文章链接和内容都被收藏到Notion中了 🖖🖖🖖</Paragraph>
       <div class="flex justify-center items-center">

@@ -32,6 +32,7 @@ interface IGlobalConfig {
   shareAppMessageImageUrl: string;
   supportPlatforms: SupportPlatform[];
   homepageUrl: string;
+  payImgUrl: string;
 }
 
 const checkUpdate = () => {
@@ -66,7 +67,7 @@ export const useGlobal = defineStore('global', () => {
 
   return {
     platform,
-    version: '0.0.8',
+    version: '0.0.9',
     globalConfig
   }
 })

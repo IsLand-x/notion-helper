@@ -93,9 +93,10 @@ const handleFastSaveChange = (e) => {
           <SInput :model-value="tempUrl" @update:model-value="e => tempUrl = e" label="文章链接"
             extra="若所填链接不以http开头，助手会自动截取http及其之后的所有字符作为文章链接" can-delete />
         </Card>
-        <Card>
+        <Card class="font-bold p-1 text-sm">
           <div>安卓用户也可以直接通过”公众号推送->右上角三个点->更多打开方式“中打开Notion助手，更方便地将文章保存到Notion。</div>
-          <div>ios用户也可以暂时将文章链接复制到备忘录中，使用批量导入功能提高使用体验。</div>
+          <div>ios用户可以使用Notion助手提供的捷径，无需打开小程序，更方便！详见主页。</div>
+          <div>Notion助手提供浏览器插件，使用教程、下载地址详见主页。</div>
         </Card>
         <SButton @click="handleSave(tempUrl)" class="mx-2">保 存</SButton>
         <Card>
