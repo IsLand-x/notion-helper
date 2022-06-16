@@ -1432,7 +1432,7 @@ async function convertBody() {
   const treatAsImg = async (el) => {
     const rawSrc = adaptor.extractImgSrc(el);
     const src = await adaptor.processImgUrl(rawSrc);
-    if ((rawSrc == null ? void 0 : rawSrc.startsWith("data:")) || src && !(src == null ? void 0 : src.startsWith("https://"))) {
+    if ((rawSrc == null ? void 0 : rawSrc.startsWith("data:")) || src && !(src == null ? void 0 : src.startsWith("http"))) {
       return [];
     }
     const data = !!src ? [{

@@ -45,7 +45,7 @@ type IUserData = {
 cloud.init()
 const _ = cloud.database().command
 
-const debugUrl = false && "ws://localhost:9222/devtools/browser/a269d5b6-1d02-433f-969e-cee047e77a95"
+const debugUrl = false && "ws://localhost:9222/devtools/browser/9b35d645-4074-418b-907c-4c25dc727085"
 
 const sleep = (ms: number) => {
   return new Promise(resolve => setTimeout(resolve, ms))

@@ -306,7 +306,7 @@ export async function convertBody() {
   const treatAsImg = async (el: HTMLImageElement) => {
     const rawSrc = adaptor.extractImgSrc(el)
     const src = await adaptor.processImgUrl(rawSrc!)
-    if (rawSrc?.startsWith("data:") || src && (!src?.startsWith("https://"))) {
+    if (rawSrc?.startsWith("data:") || src && (!src?.startsWith("http"))) {
       return []
     }
     const data = !!src ? [{
