@@ -50,8 +50,7 @@ const handleStatusChange = (e: { isError: boolean; errMsg: string; }) => {
 }
 
 useDidShow(() => {
-
-  const paramUrl = getCurrentInstance().router?.params.url
+  const paramUrl = decodeURIComponent(getCurrentInstance().router?.params.url || "")
   if (getCurrentPages().length > 1 && !paramUrl) {
     return;
   }

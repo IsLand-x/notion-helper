@@ -69,7 +69,7 @@ const shouldJump = async () => {
           ignoredUrl.push(url)
           if (res.confirm) {
             // @ts-ignore
-            navigateTo({ url: '/pages/saveArticle/index?url=' + res.content })
+            navigateTo({ url: '/pages/saveArticle/index?url=' + encodeURIComponent(res.content) })
           }
         }
       })
