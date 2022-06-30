@@ -480,22 +480,30 @@ var DoubanReviewAdaptor2 = class extends DoubanNoteAdaptor {
   constructor() {
     super(...arguments);
     this.platform = "\u8C46\u74E3\u5E7F\u64AD";
-    this.contentSelector = ".bd.sns";
+    this.contentSelector = "";
   }
   isMatch(url) {
     return /douban\.com\/people/.test(url);
   }
   authorName() {
-    const el = document.querySelector(".hd .text a");
+    const el = document.querySelector(".hd .text a") || document.querySelector(".user-info strong");
     return getText(el);
   }
   articleName() {
-    const el = document.querySelector("#content h1");
-    return getText(el);
+    const el = document.querySelector("#content h1") || window.document.title;
+    return typeof el === "string" ? el : getText(el);
   }
   publishTime() {
-    const el = document.querySelector(".pubtime");
+    const el = document.querySelector(".pubtime") || document.querySelector(".timestamp");
     return getText(el);
+  }
+  getContent() {
+    const container = document.createElement("div");
+    const bdsns = document.querySelector(".bd.sns");
+    const content = document.querySelector(".content");
+    bdsns && container.appendChild(bdsns);
+    content && container.appendChild(content);
+    return container;
   }
 };
 var doubanPeopleAdaptor_default = new DoubanReviewAdaptor2();
@@ -1022,6 +1030,57 @@ var xiaoyuzhoufmAdaptor = class {
 };
 var xiaoyuzhoufmAdaptor_default = new xiaoyuzhoufmAdaptor();
 
+// src/adaptor/csdnAdaptor.ts
+var CsdnAdaptor = class {
+  constructor() {
+    this.platform = "CSDN";
+    this.contentSelector = "";
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/csdn.svg?sign=5b37cb2462196ef8f3ce37dd756782a0&t=1656258118";
+  }
+  isMatch(url) {
+    return /blog\.csdn\.net/.test(url);
+  }
+  authorName() {
+    const el = document.querySelector(".follow-nickName");
+    return getText(el);
+  }
+  articleName() {
+    const el = document.querySelector(".title-article") || document.querySelector("title");
+    return getText(el);
+  }
+  publishTime() {
+    return void 0;
+  }
+  async bgImgUrl() {
+    return void 0;
+  }
+  async processImgUrl(url) {
+    return isLegalNotionImgFormat(url) ? url : void 0;
+  }
+  async getContent() {
+    const content = document.querySelector("article") || document.createComment("");
+    const container = document.createElement("div");
+    container.append(content);
+    return container;
+  }
+  extractImgSrc(x) {
+    var _a;
+    return (_a = x.src) == null ? void 0 : _a.replace("http://", "https://");
+  }
+  shouldSkip(x) {
+    return false;
+  }
+  forbidRequest(url) {
+    return [
+      ".css",
+      ".google.com",
+      ".googlesyndication.com",
+      ".js"
+    ].some((x) => url.includes(x));
+  }
+};
+var csdnAdaptor_default = new CsdnAdaptor();
+
 // src/adaptor/crxAdaptor.ts
 var crxAdaptor = class {
   constructor() {
@@ -1157,6 +1216,7 @@ var adaptorArr = [
   bilibiliVideoAdaptor_default,
   coolapkFeedAdaptor_default,
   xiaoyuzhoufmAdaptor_default,
+  csdnAdaptor_default,
   crxAdaptor_default,
   defaultAdaptor_default
 ];

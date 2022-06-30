@@ -77,5 +77,10 @@ module.exports = [{
     platform: '小宇宙fm',
     url: 'xiaoyuzhoufm.com',
     image: 'cloud://cloud1-0gdb05jw5581957d.636c-cloud1-0gdb05jw5581957d-1310720469/platform-logo/xiaoyuzhoufm.png'
+  },
+  {
+    platform: 'csdn博客',
+    url: 'blog.csdn.net',
+    image:'cloud://cloud1-0gdb05jw5581957d.636c-cloud1-0gdb05jw5581957d-1310720469/platform-logo/csdn.svg'
   }
 ]

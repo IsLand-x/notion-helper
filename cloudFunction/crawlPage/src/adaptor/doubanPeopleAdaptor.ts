@@ -10,21 +10,30 @@ class DoubanReviewAdaptor extends DoubanNoteAdaptor {
   }
 
   authorName() {
-    const el = document.querySelector(".hd .text a")
+    const el = document.querySelector(".hd .text a") ||document.querySelector(".user-info strong")
     return getText(el!)
   }
 
   articleName() {
-    const el = document.querySelector("#content h1")
-    return getText(el!)
+    const el = document.querySelector("#content h1") || window.document.title
+    return typeof el === 'string'?el:getText(el!)
   }
 
   publishTime() {
-    const el = document.querySelector(".pubtime")
+    const el = document.querySelector(".pubtime") || document.querySelector(".timestamp")
     return getText(el!)
   }
 
-  contentSelector = ".bd.sns"
+  contentSelector = ''
+  
+  getContent() {
+    const container = document.createElement("div")
+    const bdsns = document.querySelector(".bd.sns")
+    const content = document.querySelector(".content")
+    bdsns && container.appendChild(bdsns)
+    content && container.appendChild(content)
+    return container
+  }
 }
 
 export default new DoubanReviewAdaptor()
