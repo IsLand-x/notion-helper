@@ -84,7 +84,11 @@ function replaceChildren(container: Element, childNodes: Node[]) {
 
 function replaceAttributes(to: Element, from: Element) {
   for (const a of from.attributes) {
-    to.setAttribute(a.name, a.value)
+    try {
+      to.setAttribute(a.name, a.value)
+    } catch (e) {
+      console.error(e)
+    }
   }
 }
 

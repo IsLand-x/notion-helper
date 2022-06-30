@@ -1287,7 +1287,11 @@ function replaceChildren(container, childNodes) {
 }
 function replaceAttributes(to, from) {
   for (const a of from.attributes) {
-    to.setAttribute(a.name, a.value);
+    try {
+      to.setAttribute(a.name, a.value);
+    } catch (e) {
+      console.error(e);
+    }
   }
 }
 async function convertBody() {
