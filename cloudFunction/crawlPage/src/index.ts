@@ -13,9 +13,9 @@ type IEvent = {
   type: "save" | "getBasicInfo";
   url: string;
 } | {
-  type:"shortcut";
-  url:string;
-  secret:string;
+  type: "shortcut";
+  url: string;
+  secret: string;
 } | {
   type: "crx";
   secret: string;
@@ -27,7 +27,7 @@ type IEvent = {
   content: string
 }
 
-type EventHelper<T extends IEvent["type"],U = IEvent> = U extends { type: T } ? U : never
+type EventHelper<T extends IEvent["type"], U = IEvent> = U extends { type: T } ? U : never
 
 type CloudRes<T> = {
   errMsg: string;
@@ -45,13 +45,13 @@ type IUserData = {
 cloud.init()
 const _ = cloud.database().command
 
-const debugUrl = false && "ws://localhost:9222/devtools/browser/ece3a8bc-41ac-4fff-a16f-564a505bb729"
+const debugUrl = false && "ws://localhost:9222/devtools/browser/b753baf7-0195-4eba-951b-49a7159d7872"
 
 const sleep = (ms: number) => {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
-async function openPage(url: string, adaptor: IArticleAdaptor, evt:IEvent) {
+async function openPage(url: string, adaptor: IArticleAdaptor, evt: IEvent) {
   const browser = !debugUrl ? await puppeteer.launch({
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
   }) : await puppeteer.connect({
@@ -71,7 +71,7 @@ async function openPage(url: string, adaptor: IArticleAdaptor, evt:IEvent) {
   await page.setCookie(...(adaptor.cookie || []))
   if (isFromCrx(evt)) {
     await page.addScriptTag({
-      content:`window.evt = ${JSON.stringify(evt)}`
+      content: `window.evt = ${JSON.stringify(evt)}`
     })
     await page.evaluate(() => {
       const title = document.createElement("title")
@@ -144,7 +144,7 @@ async function saveToNotion(res: ParsedRes, user: IUserData, adaptor: IArticleAd
       Href: {
         url,
       },
-      Date: [undefined,null].includes(publishTime) ? undefined : {
+      Date: [undefined, null].includes(publishTime) ? undefined : {
         date: {
           // @ts-ignore
           start: new Date(+new Date(publishTime) + 8 * 3600 * 1000).toISOString().slice(0, -1) + '+08:00'
@@ -217,19 +217,19 @@ async function saveToNotion(res: ParsedRes, user: IUserData, adaptor: IArticleAd
           : 'ok',
     data: {
       articleName,
-      author:authorName
+      author: authorName
     }
   }
 }
 
-async function getUserData(secret?:string): Promise<null | IUserData> {
+async function getUserData(secret?: string): Promise<null | IUserData> {
   const { OPENID } = cloud.getWXContext()
   const data = await cloud.database()
     .collection('user')
     .where(OPENID ? {
       openid: OPENID
     } : {
-      key:secret
+      key: secret
     })
     .limit(1)
     .get();
@@ -251,14 +251,14 @@ const tryAddCount = (openid: string) => {
 let callCount = 0
 
 function isFromMP(evt: IEvent): evt is EventHelper<"getBasicInfo" | "save"> {
-  return ["getBasicInfo","save"].includes(evt.type)
+  return ["getBasicInfo", "save"].includes(evt.type)
 }
 
-function isFromCrx(evt: IEvent): evt is EventHelper<"crx">{
+function isFromCrx(evt: IEvent): evt is EventHelper<"crx"> {
   return evt.type === 'crx'
 }
 
-function isFromShortcut(evt: IEvent): evt is EventHelper<"shortcut">{
+function isFromShortcut(evt: IEvent): evt is EventHelper<"shortcut"> {
   return evt.type === 'shortcut'
 }
 
@@ -286,7 +286,7 @@ export async function main(evt: IEvent): Promise<CloudRes<{} | undefined>> {
   }
   const adaptor = getAdaptor(url)
   console.log(evt)
-  const { page, closeBrowser } = await openPage(url, adaptor!,evt)
+  const { page, closeBrowser } = await openPage(url, adaptor!, evt)
   const parsedRes = await parse(page, type).finally(closeBrowser)
   if (type === "getBasicInfo") {
     return {

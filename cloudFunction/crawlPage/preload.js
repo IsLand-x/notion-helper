@@ -855,7 +855,7 @@ var bilibiliVideoAdaptor = class {
     return getText(el);
   }
   publishTime() {
-    const el = document.querySelector(".pudate.item");
+    const el = document.querySelector(".pudate-text");
     return getText(el);
   }
   async bgImgUrl() {
@@ -885,7 +885,7 @@ var bilibiliVideoAdaptor = class {
     return [{
       type: "embed",
       embed: {
-        url: `https://player.bilibili.com/player.html?bvid=${window.bvid}&page=${page}`
+        url: `https://player.bilibili.com/player.html?bvid=${location.pathname.split("/").slice(-1)[0]}&page=${page}`
       }
     }];
   }
@@ -1163,6 +1163,201 @@ var defaultAdaptor = class {
 };
 var defaultAdaptor_default = new defaultAdaptor();
 
+// src/adaptor/zcoolArticleAdaptor.ts
+var ZcoolArticleAdaptor = class {
+  constructor() {
+    this.platform = "\u7AD9\u9177\u6587\u7AE0";
+    this.contentSelector = ".imgCon";
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/zcool.svg?sign=c17afd54800fb2bb129e35341ee3063e&t=1656605137";
+  }
+  isMatch(url) {
+    return /zcool\.com\.cn\/article/.test(url);
+  }
+  authorName() {
+    const el = document.querySelector("span[size='16'][color='black3']");
+    return getText(el);
+  }
+  articleName() {
+    const el = document.querySelector(".contentTitle") || document.querySelector("title");
+    return getText(el);
+  }
+  publishTime() {
+    return void 0;
+  }
+  async bgImgUrl() {
+    return void 0;
+  }
+  async processImgUrl(url) {
+    return isLegalNotionImgFormat(url) ? url : void 0;
+  }
+  extractImgSrc(x) {
+    var _a;
+    return (_a = x.src) == null ? void 0 : _a.replace("http://", "https://");
+  }
+  shouldSkip(x) {
+    return false;
+  }
+  forbidRequest(url) {
+    return [
+      ".css",
+      ".js",
+      "img.zcool.cn"
+    ].some((x) => url.includes(x));
+  }
+};
+var zcoolArticleAdaptor_default = new ZcoolArticleAdaptor();
+
+// src/adaptor/zcoolWorkAdaptor.ts
+var ZcoolWorkAdaptor = class {
+  constructor() {
+    this.platform = "\u7AD9\u9177\u4F5C\u54C1\u96C6";
+    this.contentSelector = ".detailContentBox";
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/zcool.svg?sign=c17afd54800fb2bb129e35341ee3063e&t=1656605137";
+  }
+  isMatch(url) {
+    return /zcool\.com\.cn\/work/.test(url);
+  }
+  authorName() {
+    const el = document.querySelector("span[size='16'][color='black4']");
+    return getText(el);
+  }
+  articleName() {
+    const el = document.querySelector("h1") || document.querySelector("title");
+    return getText(el);
+  }
+  publishTime() {
+    return void 0;
+  }
+  async bgImgUrl() {
+    return void 0;
+  }
+  async processImgUrl(url) {
+    return isLegalNotionImgFormat(url) ? url : void 0;
+  }
+  extractImgSrc(x) {
+    var _a;
+    return (_a = x.src) == null ? void 0 : _a.replace("http://", "https://");
+  }
+  shouldSkip(x) {
+    return false;
+  }
+  forbidRequest(url) {
+    return [
+      ".css",
+      ".js",
+      "img.zcool.cn"
+    ].some((x) => url.includes(x));
+  }
+};
+var zcoolWorkAdaptor_default = new ZcoolWorkAdaptor();
+
+// src/adaptor/uicnAdaptor.ts
+var UicnAdaptor = class {
+  constructor() {
+    this.platform = "UICN\u4F5C\u54C1\u96C6";
+    this.contentSelector = "";
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/uicn.svg?sign=dcb27d227f52d81e321c7fe7a81da951&t=1656601620";
+  }
+  isMatch(url) {
+    return /uisdc\.com/.test(url);
+  }
+  authorName() {
+    const el = document.querySelector(".meta-item.meta-author");
+    return getText(el);
+  }
+  articleName() {
+    const el = document.querySelector(".post-title") || document.querySelector("title");
+    return getText(el);
+  }
+  publishTime() {
+    return void 0;
+  }
+  async bgImgUrl() {
+    return void 0;
+  }
+  async processImgUrl(url) {
+    return isLegalNotionImgFormat(url) ? url : void 0;
+  }
+  async getContent() {
+    const container = document.createElement("div");
+    const article = document.querySelector(".article");
+    container.appendChild(article);
+    const imgZooms = document.querySelectorAll(".img-zoom img");
+    imgZooms.forEach((e) => {
+      var _a, _b;
+      (_b = (_a = e.parentNode) == null ? void 0 : _a.parentNode) == null ? void 0 : _b.appendChild(e);
+    });
+    return container;
+  }
+  extractImgSrc(x) {
+    return x.currentSrc;
+  }
+  shouldSkip(x) {
+    return false;
+  }
+  forbidRequest(url) {
+    return [].some((x) => url.includes(x));
+  }
+};
+var uicnAdaptor_default = new UicnAdaptor();
+
+// src/adaptor/xiaohongshuAdaptor.ts
+var XiaohongshuAdaptor = class {
+  constructor() {
+    this.platform = "\u5C0F\u7EA2\u4E66";
+    this.contentSelector = "";
+    this.waitNavigation = true;
+    this.iconUrl = "https://636c-cloud1-0gdb05jw5581957d-1310720469.tcb.qcloud.la/platform-logo/xiaohongshu.svg?sign=31c1034654c6c2bbab2886f0a7cc6f05&t=1656604628";
+  }
+  isMatch(url) {
+    return /xiaohongshu\.com/.test(url) || /xhslink.com/.test(url);
+  }
+  authorName() {
+    const el = document.querySelector(".right-card .name-detail");
+    return getText(el);
+  }
+  articleName() {
+    const el = document.querySelector("h1.title");
+    return getText(el);
+  }
+  publishTime() {
+    return void 0;
+  }
+  async bgImgUrl() {
+    return void 0;
+  }
+  async processImgUrl(url) {
+    return isLegalNotionImgFormat(url) ? url : void 0;
+  }
+  async getContent() {
+    const container = document.createElement("div");
+    const content = document.querySelector(".content");
+    content && container.appendChild(content);
+    const imgCarousel = document.querySelectorAll(".slide li span");
+    if (imgCarousel) {
+      Array.from(imgCarousel).forEach((e) => {
+        const img = document.createElement("img");
+        img.src = e.style.backgroundImage.split('"')[1];
+        console.log(img);
+        container.appendChild(img);
+      });
+    }
+    const video = document.querySelector("video");
+    video && container.appendChild(video);
+    return container;
+  }
+  extractImgSrc(x) {
+    return x.currentSrc;
+  }
+  shouldSkip(x) {
+    return false;
+  }
+  forbidRequest(url) {
+    return [].some((x) => url.includes(x));
+  }
+};
+var xiaohongshuAdaptor_default = new XiaohongshuAdaptor();
+
 // src/adaptor/index.ts
 var adaptorArr = [
   mpAdaptor_default,
@@ -1188,6 +1383,10 @@ var adaptorArr = [
   coolapkFeedAdaptor_default,
   xiaoyuzhoufmAdaptor_default,
   csdnAdaptor_default,
+  zcoolWorkAdaptor_default,
+  zcoolArticleAdaptor_default,
+  uicnAdaptor_default,
+  xiaohongshuAdaptor_default,
   crxAdaptor_default,
   defaultAdaptor_default
 ];
@@ -1248,6 +1447,9 @@ function shouldSkip(tag) {
 }
 function isAudioElement(el) {
   return ["AUDIO"].includes(el.tagName);
+}
+function isVideoElement(el) {
+  return ["VIDEO"].includes(el.tagName);
 }
 function isTextLevelSemanticsElement(x) {
   return [
@@ -1341,6 +1543,8 @@ async function convertBody() {
       return treatAsTable(el);
     } else if (isAudioElement(el)) {
       return treatAsAudio(el);
+    } else if (isVideoElement(el)) {
+      return treatAsVideo(el);
     } else {
       const p = document.createElement("p");
       replaceChildren(p, [...el.childNodes]);
@@ -1348,6 +1552,16 @@ async function convertBody() {
       return treatAsParagraph(p);
     }
   }
+  const treatAsVideo = async (el) => {
+    return el.src ? [
+      {
+        type: "embed",
+        embed: {
+          url: el.src
+        }
+      }
+    ] : [];
+  };
   const treatAsAudio = async (el) => {
     return el.src ? [
       {

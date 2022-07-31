@@ -20,7 +20,7 @@ class bilibiliVideoAdaptor implements IArticleAdaptor {
   }
 
   publishTime() {
-    const el = document.querySelector(".pudate.item")
+    const el = document.querySelector(".pudate-text")
     return getText(el!)
   }
 
@@ -58,7 +58,7 @@ class bilibiliVideoAdaptor implements IArticleAdaptor {
     return [{
       type: 'embed',
       embed: {
-        url: `https://player.bilibili.com/player.html?bvid=${(window as any).bvid}&page=${page}`
+        url: `https://player.bilibili.com/player.html?bvid=${location.pathname.split('/').slice(-1)[0]}&page=${page}`
       }
     }]
   }

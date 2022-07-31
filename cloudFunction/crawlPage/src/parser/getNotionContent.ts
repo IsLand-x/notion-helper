@@ -62,6 +62,10 @@ function isAudioElement(el: Element): el is HTMLAudioElement {
   return ["AUDIO"].includes(el.tagName)
 }
 
+function isVideoElement(el: Element): el is HTMLVideoElement {
+  return ["VIDEO"].includes(el.tagName)
+}
+
 function isTextLevelSemanticsElement(x: string) {
   return [
     "A", "EM", "STRONG", "CITE", "Q", "DFN",
@@ -149,6 +153,8 @@ export async function convertBody() {
       return treatAsTable(el)
     } else if (isAudioElement(el)) {
       return treatAsAudio(el)
+    } else if (isVideoElement(el)) {
+      return treatAsVideo(el)
     } else {
       const p = document.createElement("p")
       replaceChildren(p, [...el.childNodes])
@@ -156,6 +162,17 @@ export async function convertBody() {
       return treatAsParagraph(p)
     }
   }
+  const treatAsVideo = async (el: HTMLVideoElement) => {
+    return el.src ? [
+      {
+        type: "embed",
+        embed: {
+          url: el.src
+        }
+      }
+    ] : []
+  }
+
   const treatAsAudio = async (el: HTMLAudioElement) => {
     return el.src ? [
       {

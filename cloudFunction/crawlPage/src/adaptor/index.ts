@@ -33,6 +33,11 @@ import crxAdaptor from './crxAdaptor';
 
 import defaultAdaptor from './defaultAdaptor';
 
+import zcoolArticleAdaptor from './zcoolArticleAdaptor';
+import zcoolWorkAdaptor from './zcoolWorkAdaptor';
+import uicnAdaptor from './uicnAdaptor';
+import xiaohongshuAdaptor from './xiaohongshuAdaptor';
+
 const adaptorArr = [
   mpAdaptor,
   juejinAdaptor,
@@ -69,6 +74,13 @@ const adaptorArr = [
 
   csdnAdaptor,
 
+  zcoolWorkAdaptor,
+  zcoolArticleAdaptor,
+
+  uicnAdaptor,
+
+  xiaohongshuAdaptor,
+  
   crxAdaptor,
 
   defaultAdaptor,

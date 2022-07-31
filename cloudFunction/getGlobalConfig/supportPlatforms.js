@@ -82,5 +82,25 @@ module.exports = [{
     platform: 'csdn博客',
     url: 'blog.csdn.net',
     image:'cloud://cloud1-0gdb05jw5581957d.636c-cloud1-0gdb05jw5581957d-1310720469/platform-logo/csdn.svg'
+  },
+  // {
+  //   platform: '小红书',
+  //   url: 'xiaohongshu.com',
+  //   image:'cloud://cloud1-0gdb05jw5581957d.636c-cloud1-0gdb05jw5581957d-1310720469/platform-logo/xiaohongshu.svg'
+  // },
+  // {
+  //   platform: '小红书(短链)',
+  //   url: 'xhslink.com',
+  //   image:'cloud://cloud1-0gdb05jw5581957d.636c-cloud1-0gdb05jw5581957d-1310720469/platform-logo/xiaohongshu.svg'
+  // },
+  {
+    platform: '站酷网',
+    url: 'zcool.com.cn',
+    image:'cloud://cloud1-0gdb05jw5581957d.636c-cloud1-0gdb05jw5581957d-1310720469/platform-logo/zcool.svg'
+  },
+  {
+    platform: 'UICN',
+    url: 'ui.cn',
+    image:'cloud://cloud1-0gdb05jw5581957d.636c-cloud1-0gdb05jw5581957d-1310720469/platform-logo/uicn.svg'
   }
 ]
